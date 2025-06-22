@@ -10,6 +10,7 @@ def main():
     # turn on pygame
     pygame.init()
 
+
     # create a screen
     pygame.display.set_caption("My Liable Sweetheart")
     # TODO: Change the size of the screen as you see fit!
