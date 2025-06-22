@@ -17,26 +17,26 @@ class Kyle:
 
 
 def test_character():
-    # TODO: change this function to test your class
-    screen = pygame.display.set_mode((640, 480))
-    kyle = Kyle(screen, 300, 50, "kyle.png")
+    screen = pygame.display.set_mode((1000, 800))
+    kyle = Kyle(screen, 500, 50, "kyle (2).png")
     while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 sys.exit()
         pressed_keys = pygame.key.get_pressed()
         if pressed_keys[pygame.K_LEFT]:
-            kyle.x = kyle.x - 0.4
+            kyle.x = kyle.x - 0.09
         if pressed_keys[pygame.K_RIGHT]:
-            kyle.x = kyle.x + 0.4
+            kyle.x = kyle.x + 0.09
         if pressed_keys[pygame.K_UP]:
-            kyle.y = kyle.y - 0.4
+            kyle.y = kyle.y - 0.09
         if pressed_keys[pygame.K_DOWN]:
-            kyle.y = kyle.y + 0.4
+            kyle.y = kyle.y + 0.09
 
-        screen.fill("gray")
+        bg_image = pygame.image.load("Living_Room.png")
 
         kyle.draw()
+        screen.blit(bg_image, (0, 0))
         pygame.display.update()
 
 
