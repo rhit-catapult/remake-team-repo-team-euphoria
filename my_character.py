@@ -24,16 +24,17 @@ def test_character():
             if event.type == pygame.QUIT:
                 sys.exit()
         pressed_keys = pygame.key.get_pressed()
-        if pressed_keys[pygame.K_LEFT]:
-            kyle.x = kyle.x - 0.09
-        if pressed_keys[pygame.K_RIGHT]:
-            kyle.x = kyle.x + 0.09
-        if pressed_keys[pygame.K_UP]:
-            kyle.y = kyle.y - 0.09
-        if pressed_keys[pygame.K_DOWN]:
-            kyle.y = kyle.y + 0.09
+        if pressed_keys[pygame.K_a]:
+            kyle.x = kyle.x - 1
+        if pressed_keys[pygame.K_d]:
+            kyle.x = kyle.x + 1
+        if pressed_keys[pygame.K_w]:
+            kyle.y = kyle.y - 1
+        if pressed_keys[pygame.K_s]:
+            kyle.y = kyle.y + 1
 
         bg_image = pygame.image.load("Living_Room.png")
+        pygame.display.set_caption("Kyle on Top of Background")
 
         kyle.draw()
         screen.blit(bg_image, (0, 0))
