@@ -25,6 +25,7 @@ def test_character():
                 sys.exit()
         pressed_keys = pygame.key.get_pressed()
         if pressed_keys[pygame.K_LEFT]:
+<<<<<<< Updated upstream
             kyle.x = kyle.x - 0.09
         if pressed_keys[pygame.K_RIGHT]:
             kyle.x = kyle.x + 0.09
@@ -32,6 +33,15 @@ def test_character():
             kyle.y = kyle.y - 0.09
         if pressed_keys[pygame.K_DOWN]:
             kyle.y = kyle.y + 0.09
+=======
+            kyle.x = kyle.x - 0.05
+        if pressed_keys[pygame.K_RIGHT]:
+            kyle.x = kyle.x + 0.05
+        if pressed_keys[pygame.K_UP]:
+            kyle.y = kyle.y - 0.05
+        if pressed_keys[pygame.K_DOWN]:
+            kyle.y = kyle.y + 0.05
+>>>>>>> Stashed changes
 
         bg_image = pygame.image.load("Living_Room.png")
 
@@ -47,3 +57,5 @@ def test_character():
 
 if __name__ == "__main__":
     test_character()
+
+    pygame.display.set_caption("My Liable Sweetheart")
