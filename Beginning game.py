@@ -25,14 +25,14 @@ DARK_GRAY = (80, 80, 80)
 
 # Kyle
 class Kyle(pygame.sprite.Sprite):
-    def __init__(self):
+    def __init__(self, x, y):
         super().__init__()
         self.image = pygame.Surface((40, 60))
-        self.image.fill(GREEN)
-        self.rect = self.image.get_rect(center=(WIDTH//2, HEIGHT//2))
+        self.image.fill(BLUE)
+        self.rect = self.image.get_rect(center=(x, y))
         self.speed = 5
 
-    def update(self, keys):
+    def move(self, keys):
         if keys[pygame.K_w]:
             self.rect.y -= self.speed
         if keys[pygame.K_s]:
@@ -41,6 +41,51 @@ class Kyle(pygame.sprite.Sprite):
             self.rect.x -= self.speed
         if keys[pygame.K_d]:
             self.rect.x += self.speed
+
+def test_character():
+    import pygame
+    pygame.init()
+
+    screen = pygame.display.set_mode((1000, 800))
+    clock = pygame.time.Clock()
+
+    class Kyle(pygame.sprite.Sprite):
+        def __init__(self, x, y):
+            super().__init__()
+            self.image = pygame.Surface((40, 60))  # You can replace this with an image if needed
+            self.image.fill((0, 0, 255))  # Blue color
+            self.rect = self.image.get_rect(center=(x, y))
+            self.speed = 5
+
+        def move(self, keys):
+            if keys[pygame.K_w]:
+                self.rect.y -= self.speed
+            if keys[pygame.K_s]:
+                self.rect.y += self.speed
+            if keys[pygame.K_a]:
+                self.rect.x -= self.speed
+            if keys[pygame.K_d]:
+                self.rect.x += self.speed
+
+    kyle = Kyle(500, 400)  # Middle of screen
+
+    running = True
+    while running:
+        screen.fill((255, 255, 255))  # Clear screen each frame with white
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False
+
+        keys = pygame.key.get_pressed()
+        kyle.move(keys)
+
+        screen.blit(kyle.image, kyle.rect)  # Draw Kyle
+        pygame.display.update()
+        clock.tick(60)
+
+    pygame.quit()
+
 
 # Buttons
 class Button:
@@ -61,8 +106,9 @@ class Button:
         return self.rect.collidepoint(pos)
 
 # Instantiate player
-kyle = Kyle()
-sprites = pygame.sprite.Group(kyle)
+#kyle = Kyle()
+#sprites = pygame.sprite.Group(kyle)
+kyle = Kyle(WIDTH // 2, HEIGHT // 2)
 
 # Buttons
 start_button = Button("Play", (WIDTH//2 - 60, HEIGHT - 80, 120, 40), lambda: change_scene(CENTER))
@@ -146,7 +192,7 @@ def handle_house_collisions():
 # Main loop
 running = True
 while running:
-    keys = pygame.key.get_pressed()
+    #keys = pygame.key.get_pressed()
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -168,8 +214,8 @@ while running:
         kyle.update(keys)
 
     screen.fill(WHITE)
-    sprites.draw(screen)
-    sprites.update(keys)
+    #sprites.draw(screen)
+    #sprites.update(keys)
 
     if game_state == TITLE:
         start_button.draw(screen)
@@ -231,6 +277,7 @@ while running:
 
     pygame.display.flip()
     clock.tick(60)
+    screen.blit(kyle.image, kyle.rect)
+    pygame.quit()
 
-pygame.quit()
 sys.exit()
