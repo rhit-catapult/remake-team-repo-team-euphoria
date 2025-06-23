@@ -27,8 +27,8 @@ DARK_GRAY = (80, 80, 80)
 class Kyle(pygame.sprite.Sprite):
     def __init__(self, x, y):
         super().__init__()
-        self.image = pygame.Surface((40, 60))
-        self.image.fill(BLUE)
+        self.image = pygame.image.load("kyle (2).png").convert_alpha()  # Load image with transparency
+        self.image = pygame.transform.scale(self.image, (40, 60))  # Resize if needed
         self.rect = self.image.get_rect(center=(x, y))
         self.speed = 5
 
@@ -192,7 +192,7 @@ def handle_house_collisions():
 # Main loop
 running = True
 while running:
-    #keys = pygame.key.get_pressed()
+    keys = pygame.key.get_pressed()
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -211,11 +211,9 @@ while running:
                 if enter_new_house_button.is_clicked(pos): enter_new_house_button.action()
 
     if game_state != TITLE:
-        kyle.update(keys)
+        kyle.move(keys)
 
     screen.fill(WHITE)
-    #sprites.draw(screen)
-    #sprites.update(keys)
 
     if game_state == TITLE:
         start_button.draw(screen)
@@ -252,7 +250,6 @@ while running:
             pygame.draw.rect(screen, BLACK, wall_right)
 
     elif game_state == CUTSCENE:
-        # 🧩 Cutscene placeholder
         game_state = SECOND_TITLE
 
     elif game_state == SECOND_TITLE:
@@ -275,9 +272,10 @@ while running:
         if kyle.rect.colliderect(new_house_door.inflate(10, 10)):
             enter_new_house_button.draw(screen)
 
+    screen.blit(kyle.image, kyle.rect)
     pygame.display.flip()
     clock.tick(60)
-    screen.blit(kyle.image, kyle.rect)
-    pygame.quit()
 
+# Exit cleanly
+pygame.quit()
 sys.exit()
