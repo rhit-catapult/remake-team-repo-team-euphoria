@@ -27,45 +27,46 @@ DARK_GRAY = (80, 80, 80)
 class Kyle(pygame.sprite.Sprite):
     def __init__(self, x, y):
         super().__init__()
-        self.image = pygame.image.load("kyle (2).png").convert_alpha()  # Load image with transparency
-        self.image = pygame.transform.scale(self.image, (40, 60))  # Resize if needed
+
+        # Load all directional sprites ONCE
+        self.sprites = {
+            "up": pygame.image.load("kyle_back.png").convert_alpha(),
+            "down": pygame.image.load("kyle (2).png").convert_alpha(),
+            "left": pygame.image.load("kyle_left.png").convert_alpha(),
+            "right": pygame.image.load("kyle_right.png").convert_alpha()
+        }
+
+        # Resize them all
+        for key in self.sprites:
+            self.sprites[key] = pygame.transform.scale(self.sprites[key], (40, 60))
+
+        self.facing = "down"  # Default direction
+        self.image = self.sprites[self.facing]
         self.rect = self.image.get_rect(center=(x, y))
         self.speed = 5
 
     def move(self, keys):
         if keys[pygame.K_w]:
             self.rect.y -= self.speed
+            self.facing = "up"
         if keys[pygame.K_s]:
             self.rect.y += self.speed
+            self.facing = "down"
         if keys[pygame.K_a]:
             self.rect.x -= self.speed
+            self.facing = "left"
         if keys[pygame.K_d]:
             self.rect.x += self.speed
+            self.facing = "right"
+
+        # Update sprite based on direction
+        self.image = self.sprites[self.facing]
 
 def test_character():
-    import pygame
-    pygame.init()
 
     screen = pygame.display.set_mode((1000, 800))
     clock = pygame.time.Clock()
 
-    class Kyle(pygame.sprite.Sprite):
-        def __init__(self, x, y):
-            super().__init__()
-            self.image = pygame.Surface((40, 60))  # You can replace this with an image if needed
-            self.image.fill((0, 0, 255))  # Blue color
-            self.rect = self.image.get_rect(center=(x, y))
-            self.speed = 5
-
-        def move(self, keys):
-            if keys[pygame.K_w]:
-                self.rect.y -= self.speed
-            if keys[pygame.K_s]:
-                self.rect.y += self.speed
-            if keys[pygame.K_a]:
-                self.rect.x -= self.speed
-            if keys[pygame.K_d]:
-                self.rect.x += self.speed
 
     kyle = Kyle(500, 400)  # Middle of screen
 
