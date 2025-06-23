@@ -5,7 +5,7 @@ pygame.init()
 
 # Screen size & colors
 WIDTH, HEIGHT = 800, 600
-screen = pygame.display.set_mode((WIDTH, HEIGHT))
+screen = pygame.display.set_mode((WIDTH, HEIGHT))   
 pygame.display.set_caption("Dating Sim Prototype")
 
 WHITE = (255, 255, 255)
@@ -261,6 +261,22 @@ def handle_collisions():
 
 # Remove the old draw_title_scene and main duplicates at the bottom
 # Keep only one main() and one draw_title_scene()
+
+def draw_center_scene():
+    screen.fill(WHITE)  # Fill the background white
+
+    # Draw the house
+    pygame.draw.rect(screen, BROWN, first_house_border)
+
+    # Draw the house door
+    pygame.draw.rect(screen, BLACK, house_door)
+
+    # Draw the car
+    pygame.draw.rect(screen, RED, car_border)
+
+    # Draw the top and bottom borders
+    pygame.draw.rect(screen, BLACK, center_top_border)
+    pygame.draw.rect(screen, BLACK, center_bottom_border)
 
 # Modified draw_title_scene:
 def draw_title_scene():
