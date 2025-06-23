@@ -348,7 +348,7 @@ def main():
         elif game_state == STREET2:
             draw_street2_scene()
 
-        # Draw Kyle sprite (except in TITLE scene)
+         # Draw Kyle sprite (except in TITLE scene)
         if game_state != TITLE:
             screen.blit(kyle.image, kyle.rect)
 
@@ -359,13 +359,6 @@ def main():
 
         pygame.display.flip()
         clock.tick(60)
-
-    pygame.quit()
-    sys.exit()
-
-if __name__ == "__main__":
-    change_scene(TITLE)
-    main()
 
 def draw_center_scene():
     screen.fill(WHITE)
