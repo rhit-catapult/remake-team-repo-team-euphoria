@@ -225,80 +225,100 @@ while running:
             screen.blit(bg_center, (0, 0))
         elif game_state == HOUSE:
             screen.blit(bg_house, (0, 0))
-        #elif game_state == LEFT:
-            #screen.blit(bg_left, (0, 0))
-        #elif game_state == RIGHT:
-            #screen.blit(bg_right, (0, 0))
         elif game_state == STREET1:
             screen.blit(bg_street1, (0, 0))
         elif game_state == STREET2:
             screen.blit(bg_street2, (0, 0))
-        elif game_state == SECOND_TITLE:
-            #screen.blit(bg_second_title, (0, 0))
-            pass
         else:
             screen.fill(WHITE)
+
     if game_state != TITLE:
         kyle.move(keys)
+
+    handle_wall_collisions()
+    if game_state == CENTER:
+        handle_house_collisions()
 
 
     if game_state == TITLE:
         start_button.draw(screen)
 
+    if game_state == TITLE:
+
+        start_button.draw(screen)
+
+
     elif game_state == CENTER:
+
         pygame.draw.rect(screen, DARK_GRAY, house_area, 2)
+
         pygame.draw.rect(screen, BLUE, house_door)
+
         pygame.draw.rect(screen, BLACK, car_box, 2)
 
-        handle_wall_collisions()
-        handle_house_collisions()
-
-        if kyle.rect.colliderect(house_door.inflate(10, 10)):
-            enter_house_button.draw(screen)
-        elif kyle.rect.colliderect(car_box.inflate(10, 10)):
-            drive_button.draw(screen)
-
         pygame.draw.rect(screen, BLACK, wall_left)
+
         pygame.draw.rect(screen, BLACK, wall_right)
+
         pygame.draw.rect(screen, BLACK, wall_top)
+
         pygame.draw.rect(screen, BLACK, wall_bottom)
 
+        if kyle.rect.colliderect(house_door.inflate(10, 10)):
+
+            enter_house_button.draw(screen)
+
+        elif kyle.rect.colliderect(car_box.inflate(10, 10)):
+
+            drive_button.draw(screen)
+
+
     elif game_state == HOUSE:
+
         pygame.draw.rect(screen, BLUE, house_exit)
-        handle_wall_collisions()
+
         if kyle.rect.colliderect(house_exit.inflate(10, 10)):
             leave_house_button.draw(screen)
 
+
     elif game_state == LEFT or game_state == RIGHT:
-        handle_wall_collisions()
-        if game_state == LEFT:
-            pygame.draw.rect(screen, BLACK, wall_left)
-        else:
-            pygame.draw.rect(screen, BLACK, wall_right)
+
+        pygame.draw.rect(screen, BLACK, wall_left if game_state == LEFT else wall_right)
+
 
     elif game_state == CUTSCENE:
+
         game_state = SECOND_TITLE
 
+
     elif game_state == SECOND_TITLE:
+
         next_button.draw(screen)
 
+
     elif game_state == STREET1:
-        handle_wall_collisions()
+
         pygame.draw.rect(screen, BLACK, (0, 400, WIDTH, 10))
+
         pygame.draw.rect(screen, BLACK, (0, HEIGHT - 400, WIDTH, 10))
+
         pygame.draw.rect(screen, BLACK, wall_right)
 
+
     elif game_state == STREET2:
-        handle_wall_collisions()
+
         pygame.draw.rect(screen, BLACK, (0, 400, WIDTH, 10))
+
         pygame.draw.rect(screen, BLACK, (0, HEIGHT - 400, WIDTH, 10))
+
         pygame.draw.rect(screen, BLACK, wall_left)
+
         pygame.draw.rect(screen, DARK_GRAY, new_house, 2)
+
         pygame.draw.rect(screen, BLUE, new_house_door)
 
         if kyle.rect.colliderect(new_house_door.inflate(10, 10)):
             enter_new_house_button.draw(screen)
-
 
     screen.blit(kyle.image, kyle.rect)
     pygame.display.flip()
