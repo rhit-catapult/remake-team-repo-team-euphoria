@@ -1,104 +1,143 @@
 import pygame
-import random
 import sys
+import os
 
-# Initialize Pygame
+# === Setup ===
 pygame.init()
-
-# Screen dimensions
 WIDTH, HEIGHT = 800, 600
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
-pygame.display.set_caption("Space Invader - Single Bouncer")
+pygame.display.set_caption("Scene Teleport Game")
 
-# Colors
-WHITE = (255, 255, 255)
-RED = (255, 0, 0)
-
-# Clock
+FPS = 75
 clock = pygame.time.Clock()
-FPS = 60
 
-# Player
-player_img = pygame.Surface((50, 30))
-player_img.fill(WHITE)
-player_x = WIDTH // 2
-player_y = HEIGHT - 50
-player_speed = 5
+# === Asset Loading ===
+def load_image(path, fallback_color=(255, 0, 0), size=(40, 40)):
+    if os.path.exists(path):
+        return pygame.transform.scale(pygame.image.load(path), size)
+    else:
+        surf = pygame.Surface(size)
+        surf.fill(fallback_color)
+        return surf
 
-# Bullet
-bullet_img = pygame.Surface((5, 10))
-bullet_img.fill(RED)
-bullets = []
-bullet_speed = -7
+# Load player sprite
+player_image = load_image("player_image.png")
 
-# Alien
-alien_img = pygame.Surface((60, 40))
-alien_img.fill((0, 255, 0))
-alien_x = random.randint(100, WIDTH - 100)
-alien_y = 50
-alien_dx = 4
-alien_dy = 2
-alien_hitpoints = 20
-font = pygame.font.SysFont(None, 36)
+# Load background images (scene backgrounds)
+backgrounds = [
+    load_image("assets/background0.png", fallback_color=(255, 255, 255), size=(WIDTH, HEIGHT)),
+    load_image("assets/background1.png", fallback_color=(0, 255, 0), size=(WIDTH, HEIGHT))
+]
+
+# === Classes ===
+class Kyle:
+    def __init__(self, screen: pygame.Surface, x, y, image_filename):
+        self.screen = screen
+        self.x = x
+        self.y = y
+        self.image = pygame.image.load(image_filename)
+        self.speed = 10
+        self.rect = self.image.get_rect()
+
+    def move(self, keys):
+        if keys[pygame.K_LEFT]:
+            self.rect.x -= self.speed
+        if keys[pygame.K_RIGHT]:
+            self.rect.x += self.speed
+        if keys[pygame.K_UP]:
+            self.rect.y -= self.speed
+        if keys[pygame.K_DOWN]:
+            self.rect.y += self.speed
+
+    def draw(self):
+        ## Draw kyle
+        # self.rect = self.image.get_rect()
+        self.screen.blit(self.image, self.rect)
+
+class Scene:
+    def __init__(self, screen, background_img, obstacles, img_obstacles):
+        self.background = background_img
+        self.box_obstacles = obstacles  # List of pygame.Rect (hitboxes)
+        self.img_obstacles = img_obstacles
+
+        self.screen = screen
+
+    def draw(self, surface):
+        surface.blit(self.background, (0, 0))
+        for obs in self.box_obstacles:
+            pygame.draw.rect(surface, (100, 100, 100), obs, 2)  # Draw building hitbox outlines
+
+        for img, pos in self.img_obstacles:
+            self.screen.blit(img, (pos.x, pos.y))
+
+# === Game Data ===
+player = Kyle(screen, WIDTH // 2, HEIGHT // 2, "kyle (2).png")
+# player_group = pygame.sprite.Group(player)
+
+kyleimg = pygame.image.load("kyle_left.png")
+# Example building hitboxes for each scene
+scenes = [
+    Scene(screen, backgrounds[0], [pygame.Rect(150, 150, 100, 100), pygame.Rect(400, 300, 120, 80),],
+          [(kyleimg, pygame.Rect(200, 50, 100, 100))]),
+    Scene(screen, backgrounds[1], [pygame.Rect(200, 100, 150, 150)], [])
+]
+
+current_scene = 0
+
+# === Game Loop ===
+
+def hitbox_helper(hitbox_i):
+    if player.rect.colliderect(hitbox_i):
+        # Simple collision response: push player back (basic)
+        if keys[pygame.K_LEFT]:
+            player.rect.left = hitbox_i.right
+        if keys[pygame.K_RIGHT]:
+            player.rect.right = hitbox_i.left
+        if keys[pygame.K_UP]:
+            player.rect.top = hitbox_i.bottom
+        if keys[pygame.K_DOWN]:
+            player.rect.bottom = hitbox_i.top
 
 running = True
 while running:
     clock.tick(FPS)
     screen.fill((0, 0, 0))
 
-    # --- Handle Events ---
+    # === Events ===
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
 
-    # --- Handle Input ---
+    # === Movement ===
     keys = pygame.key.get_pressed()
-    if keys[pygame.K_LEFT] and player_x > 0:
-        player_x -= player_speed
-    if keys[pygame.K_RIGHT] and player_x < WIDTH - 50:
-        player_x += player_speed
-    if keys[pygame.K_SPACE]:
-        if len(bullets) < 5:  # Limit number of bullets
-            bullets.append([player_x + 22, player_y])
+    player.move(keys)
 
-    # --- Update Bullets ---
-    for bullet in bullets[:]:
-        bullet[1] += bullet_speed
-        if bullet[1] < 0:
-            bullets.remove(bullet)
+    # === Teleport Check ===
+    if player.rect.right < 0:
+        current_scene = (current_scene + 1) % len(scenes)
+        player.rect.left = WIDTH
+    elif player.rect.left > WIDTH:
+        current_scene = (current_scene + 1) % len(scenes)
+        player.rect.right = 0
+    elif player.rect.top > HEIGHT:
+        current_scene = (current_scene + 1) % len(scenes)
+        player.rect.bottom = 0
+    elif player.rect.bottom < 0:
+        current_scene = (current_scene + 1) % len(scenes)
+        player.rect.top = HEIGHT
 
-    # --- Move Alien ---
-    alien_x += alien_dx
-    alien_y += alien_dy
+    # === Collision with building hitboxes ===
+    for hitbox in scenes[current_scene].box_obstacles:
+        hitbox_helper(hitbox)
 
-    # Bounce off walls
-    if alien_x <= 0 or alien_x >= WIDTH - 60:
-        alien_dx *= -1
-    if alien_y <= 0 or alien_y >= HEIGHT // 2:
-        alien_dy *= -1
+    for img in scenes[current_scene].img_obstacles:
+        # (image, rectangle)
+        # 0         1
+        hitbox_helper(img[1])
 
-    # --- Collision Detection ---
-    alien_rect = pygame.Rect(alien_x, alien_y, 60, 40)
-    for bullet in bullets[:]:
-        bullet_rect = pygame.Rect(bullet[0], bullet[1], 5, 10)
-        if alien_rect.colliderect(bullet_rect):
-            bullets.remove(bullet)
-            alien_hitpoints -= 1
-
-    # --- Draw Everything ---
-    screen.blit(player_img, (player_x, player_y))
-    for bullet in bullets:
-        screen.blit(bullet_img, (bullet[0], bullet[1]))
-    if alien_hitpoints > 0:
-        screen.blit(alien_img, (alien_x, alien_y))
-    else:
-        win_text = font.render("You defeated the alien!", True, WHITE)
-        screen.blit(win_text, (WIDTH // 2 - 150, HEIGHT // 2))
-
-    # Draw HP
-    hp_text = font.render(f"Alien HP: {alien_hitpoints}", True, WHITE)
-    screen.blit(hp_text, (10, 10))
-
+    # === Drawing ===
+    scenes[current_scene].draw(screen)
+    player.draw()
     pygame.display.flip()
 
 pygame.quit()

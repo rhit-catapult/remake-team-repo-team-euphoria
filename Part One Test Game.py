@@ -79,7 +79,7 @@ enter_house_button = Button("Enter Your House", (WIDTH//2 - 100, HEIGHT - 40, 20
 leave_house_button = Button("Leave the House", (WIDTH//2 - 100, HEIGHT - 40, 200, 30), lambda: change_scene(CENTER))
 
 # Hitboxes
-wall_top = pygame.Rect(0, 0, WIDTH, 10)
+wall_top = pygame.Rect(0, 0, WIDTH, 20)
 wall_bottom = pygame.Rect(0, HEIGHT - 10, WIDTH, 10)
 wall_left = pygame.Rect(0, 0, 10, HEIGHT)
 wall_right = pygame.Rect(WIDTH - 10, 0, 10, HEIGHT)
@@ -145,6 +145,7 @@ def handle_house_collisions():
 
 # Main loop
 running = True
+level = 0
 while running:
     keys = pygame.key.get_pressed()
 
@@ -206,6 +207,7 @@ while running:
     screen.blit(kyle.image, kyle.rect)
     pygame.display.flip()
     clock.tick(60)
+
 
 # Exit cleanly
 pygame.quit()
