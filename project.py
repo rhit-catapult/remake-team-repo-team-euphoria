@@ -2,6 +2,7 @@ import pygame
 import random
 import sys
 
+<<<<<<< Updated upstream
 # Initialize Pygame
 pygame.init()
 
@@ -103,3 +104,8 @@ while running:
 
 pygame.quit()
 sys.exit()
+=======
+# ---- CONFIG ----
+SCREEN_WIDTH, SCREEN_HEIGHT = 300, 300
+FPS = 60
+>>>>>>> Stashed changes
