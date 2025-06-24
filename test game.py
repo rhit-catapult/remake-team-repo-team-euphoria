@@ -36,6 +36,8 @@ class Kyle:
         self.x = x
         self.y = y
         self.image = pygame.image.load(image_filename)
+        self.speed = 10
+        self.rect = self.image.get_rect()
 
     def move(self, keys):
         if keys[pygame.K_LEFT]:
@@ -47,37 +49,59 @@ class Kyle:
         if keys[pygame.K_DOWN]:
             self.rect.y += self.speed
 
+    def draw(self):
+        ## Draw kyle
+        # self.rect = self.image.get_rect()
+        self.screen.blit(self.image, self.rect)
+
 class Scene:
-    def __init__(self, background_img, obstacles):
+    def __init__(self, screen, background_img, obstacles, img_obstacles):
         self.background = background_img
-        self.obstacles = obstacles  # List of pygame.Rect (hitboxes)
+        self.box_obstacles = obstacles  # List of pygame.Rect (hitboxes)
+        self.img_obstacles = img_obstacles
+
+        self.screen = screen
 
     def draw(self, surface):
         surface.blit(self.background, (0, 0))
-        for obs in self.obstacles:
+        for obs in self.box_obstacles:
             pygame.draw.rect(surface, (100, 100, 100), obs, 2)  # Draw building hitbox outlines
 
-# === Game Data ===
-player = Kyle(WIDTH // 2, HEIGHT // 2, "player_image.png")
-player_group = pygame.sprite.Group(player)
+        for img, pos in self.img_obstacles:
+            self.screen.blit(img, (pos.x, pos.y))
 
+# === Game Data ===
+player = Kyle(screen, WIDTH // 2, HEIGHT // 2, "kyle (2).png")
+# player_group = pygame.sprite.Group(player)
+
+kyleimg = pygame.image.load("kyle_left.png")
 # Example building hitboxes for each scene
 scenes = [
-    Scene(backgrounds[0], [pygame.Rect(150, 150, 100, 100), pygame.Rect(400, 300, 120, 80)]),
-    Scene(backgrounds[1], [pygame.Rect(200, 100, 150, 150)])
+    Scene(screen, backgrounds[0], [pygame.Rect(150, 150, 100, 100), pygame.Rect(400, 300, 120, 80),],
+          [(kyleimg, pygame.Rect(200, 50, 100, 100))]),
+    Scene(screen, backgrounds[1], [pygame.Rect(200, 100, 150, 150)], [])
 ]
 
 current_scene = 0
 
 # === Game Loop ===
-player_group.update()
-scenes[current_scene].draw(screen)
-player_group.draw(screen)
-pygame.display.flip()
+
+def hitbox_helper(hitbox_i):
+    if player.rect.colliderect(hitbox_i):
+        # Simple collision response: push player back (basic)
+        if keys[pygame.K_LEFT]:
+            player.rect.left = hitbox_i.right
+        if keys[pygame.K_RIGHT]:
+            player.rect.right = hitbox_i.left
+        if keys[pygame.K_UP]:
+            player.rect.top = hitbox_i.bottom
+        if keys[pygame.K_DOWN]:
+            player.rect.bottom = hitbox_i.top
 
 running = True
 while running:
     clock.tick(FPS)
+    screen.fill((0, 0, 0))
 
     # === Events ===
     for event in pygame.event.get():
@@ -103,22 +127,17 @@ while running:
         player.rect.top = HEIGHT
 
     # === Collision with building hitboxes ===
-    for hitbox in scenes[current_scene].obstacles:
-        if player.rect.colliderect(hitbox):
-            # Simple collision response: push player back (basic)
-            if keys[pygame.K_LEFT]:
-                player.rect.left = hitbox.right
-            if keys[pygame.K_RIGHT]:
-                player.rect.right = hitbox.left
-            if keys[pygame.K_UP]:
-                player.rect.top = hitbox.bottom
-            if keys[pygame.K_DOWN]:
-                player.rect.bottom = hitbox.top
+    for hitbox in scenes[current_scene].box_obstacles:
+        hitbox_helper(hitbox)
+
+    for img in scenes[current_scene].img_obstacles:
+        # (image, rectangle)
+        # 0         1
+        hitbox_helper(img[1])
 
     # === Drawing ===
     scenes[current_scene].draw(screen)
-    player_group.draw(screen)
-
+    player.draw()
     pygame.display.flip()
 
 pygame.quit()

@@ -145,6 +145,7 @@ def handle_house_collisions():
 
 # Main loop
 running = True
+level = 0
 while running:
     keys = pygame.key.get_pressed()
 
@@ -206,6 +207,7 @@ while running:
     screen.blit(kyle.image, kyle.rect)
     pygame.display.flip()
     clock.tick(60)
+
 
 # Exit cleanly
 pygame.quit()
