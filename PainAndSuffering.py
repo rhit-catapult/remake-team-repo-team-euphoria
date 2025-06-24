@@ -22,6 +22,15 @@ GRAY = (180, 180, 180)
 GREEN = (0, 255, 0)
 BLUE = (0, 0, 255)
 DARK_GRAY = (80, 80, 80)
+#Backgrounds (load and scale them)
+bg_title = pygame.transform.scale(pygame.image.load("Title Screen 1.png"), (WIDTH, HEIGHT))
+bg_center = pygame.transform.scale(pygame.image.load("kyle_house.png"), (WIDTH, HEIGHT))
+bg_house = pygame.transform.scale(pygame.image.load("KHouse_inside.png"), (WIDTH, HEIGHT))
+#bg_left = pygame.transform.scale(pygame.image.load("bg_left.png"), (WIDTH, HEIGHT))
+#bg_right = pygame.transform.scale(pygame.image.load("bg_right.png"), (WIDTH, HEIGHT))
+bg_street1 = pygame.transform.scale(pygame.image.load("Road to the house.png"), (WIDTH, HEIGHT))
+bg_street2 = pygame.transform.scale(pygame.image.load("Road to the house.png"), (WIDTH, HEIGHT))
+#bg_second_title = pygame.transform.scale(pygame.image.load("bg_second_title.png"), (WIDTH, HEIGHT))
 
 # Kyle
 class Kyle(pygame.sprite.Sprite):
@@ -210,11 +219,28 @@ while running:
             elif game_state == SECOND_TITLE and next_button.is_clicked(pos): next_button.action()
             elif game_state == STREET2 and kyle.rect.colliderect(new_house_door.inflate(10, 10)):
                 if enter_new_house_button.is_clicked(pos): enter_new_house_button.action()
-
+        if game_state == TITLE:
+            screen.blit(bg_title, (0, 0))
+        elif game_state == CENTER:
+            screen.blit(bg_center, (0, 0))
+        elif game_state == HOUSE:
+            screen.blit(bg_house, (0, 0))
+        #elif game_state == LEFT:
+            #screen.blit(bg_left, (0, 0))
+        #elif game_state == RIGHT:
+            #screen.blit(bg_right, (0, 0))
+        elif game_state == STREET1:
+            screen.blit(bg_street1, (0, 0))
+        elif game_state == STREET2:
+            screen.blit(bg_street2, (0, 0))
+        elif game_state == SECOND_TITLE:
+            #screen.blit(bg_second_title, (0, 0))
+            pass
+        else:
+            screen.fill(WHITE)
     if game_state != TITLE:
         kyle.move(keys)
 
-    screen.fill(WHITE)
 
     if game_state == TITLE:
         start_button.draw(screen)
@@ -272,6 +298,7 @@ while running:
 
         if kyle.rect.colliderect(new_house_door.inflate(10, 10)):
             enter_new_house_button.draw(screen)
+
 
     screen.blit(kyle.image, kyle.rect)
     pygame.display.flip()

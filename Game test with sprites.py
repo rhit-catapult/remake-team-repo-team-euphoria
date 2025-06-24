@@ -5,7 +5,7 @@ pygame.init()
 
 # Screen size & colors
 WIDTH, HEIGHT = 800, 600
-screen = pygame.display.set_mode((WIDTH, HEIGHT))   
+screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Dating Sim Prototype")
 
 WHITE = (255, 255, 255)
@@ -33,10 +33,11 @@ STREET2 = "street2"
 
 # Define Kyle sprite class
 class Kyle(pygame.sprite.Sprite):
-    def __init__(self, x, y):
-        super().__init__()
-        self.image = pygame.Surface((40, 60))
-        self.image.fill(BLUE)
+    def __init__(self, screen: pygame.Surface, x, y, image_filename):
+        self.screen = screen
+        self.x = x
+        self.y = y
+        self.image = pygame.image.load(image_filename)
         self.rect = self.image.get_rect(center=(x, y))
         self.speed = 5
 
@@ -50,8 +51,13 @@ class Kyle(pygame.sprite.Sprite):
         if keys[pygame.K_d]:
             self.rect.x += self.speed
 
-# Initialize Kyle at center (used later)
-kyle = Kyle(WIDTH // 2, HEIGHT // 2)
+
+
+
+def test_character():
+    screen = pygame.display.set_mode((1000, 800))
+kyle = Kyle(screen, 500, 50, "kyle (2).png")
+
 
 # --- Hitboxes and borders for scenes ---
 
@@ -262,22 +268,6 @@ def handle_collisions():
 # Remove the old draw_title_scene and main duplicates at the bottom
 # Keep only one main() and one draw_title_scene()
 
-def draw_center_scene():
-    screen.fill(WHITE)  # Fill the background white
-
-    # Draw the house
-    pygame.draw.rect(screen, BROWN, first_house_border)
-
-    # Draw the house door
-    pygame.draw.rect(screen, BLACK, house_door)
-
-    # Draw the car
-    pygame.draw.rect(screen, RED, car_border)
-
-    # Draw the top and bottom borders
-    pygame.draw.rect(screen, BLACK, center_top_border)
-    pygame.draw.rect(screen, BLACK, center_bottom_border)
-
 # Modified draw_title_scene:
 def draw_title_scene():
     screen.fill(WHITE)
@@ -335,8 +325,8 @@ def main():
         # Draw current scene
         if game_state == TITLE:
             draw_title_scene()
-        elif game_state == CENTER:
-            draw_center_scene()
+        #elif game_state == CENTER:
+            #draw_center_scene()
         elif game_state == LEFT:
             draw_left_scene()
         elif game_state == RIGHT:
@@ -348,7 +338,7 @@ def main():
         elif game_state == STREET2:
             draw_street2_scene()
 
-         # Draw Kyle sprite (except in TITLE scene)
+        # Draw Kyle sprite (except in TITLE scene)
         if game_state != TITLE:
             screen.blit(kyle.image, kyle.rect)
 
@@ -359,6 +349,13 @@ def main():
 
         pygame.display.flip()
         clock.tick(60)
+
+    pygame.quit()
+    sys.exit()
+
+if __name__ == "__main__":
+    change_scene(TITLE)
+    main()
 
 def draw_center_scene():
     screen.fill(WHITE)
@@ -552,6 +549,6 @@ def main():
 
         pygame.display.flip()
         clock.tick(60)
-
+        kyle.draw()
     pygame.quit()
     sys.exit()
