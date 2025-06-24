@@ -1,3 +1,4 @@
+@ -1,73 +0,0 @@
 import pygame
 import sys
 
