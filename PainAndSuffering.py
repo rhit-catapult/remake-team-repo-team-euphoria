@@ -25,7 +25,7 @@ DARK_GRAY = (80, 80, 80)
 #Backgrounds (load and scale them)
 bg_title = pygame.transform.scale(pygame.image.load("Title Screen 1.png"), (WIDTH, HEIGHT))
 bg_center = pygame.transform.scale(pygame.image.load("kyle_house.png"), (WIDTH, HEIGHT))
-bg_house = pygame.transform.scale(pygame.image.load("KHouse_inside.png"), (WIDTH, HEIGHT))
+bg_house = pygame.transform.scale(pygame.image.load("KH_new.png"), (WIDTH, HEIGHT))
 #bg_left = pygame.transform.scale(pygame.image.load("bg_left.png"), (WIDTH, HEIGHT))
 #bg_right = pygame.transform.scale(pygame.image.load("bg_right.png"), (WIDTH, HEIGHT))
 bg_street1 = pygame.transform.scale(pygame.image.load("Road to the house.png"), (WIDTH, HEIGHT))
@@ -40,14 +40,14 @@ class Kyle(pygame.sprite.Sprite):
         # Load all directional sprites ONCE
         self.sprites = {
             "up": pygame.image.load("kyle_back.png").convert_alpha(),
-            "down": pygame.image.load("kyle (2).png").convert_alpha(),
+            "down": pygame.image.load("Kyle (2).png").convert_alpha(),
             "left": pygame.image.load("kyle_left.png").convert_alpha(),
             "right": pygame.image.load("kyle_right.png").convert_alpha()
         }
 
         # Resize them all
         for key in self.sprites:
-            self.sprites[key] = pygame.transform.scale(self.sprites[key], (40, 60))
+            self.sprites[key] = pygame.transform.scale(self.sprites[key], (100, 100))
 
         self.facing = "down"  # Default direction
         self.image = self.sprites[self.facing]
