@@ -26,7 +26,7 @@ DARK_GRAY = (80, 80, 80)
 bg_title = pygame.transform.scale(pygame.image.load("Title Screen 1.png"), (WIDTH, HEIGHT))
 bg_center = pygame.transform.scale(pygame.image.load("kyle_house.png"), (WIDTH, HEIGHT))
 bg_house = pygame.transform.scale(pygame.image.load("KH_new.png"), (WIDTH, HEIGHT))
-#bg_left = pygame.transform.scale(pygame.image.load("bg_left.png"), (WIDTH, HEIGHT))
+bg_left = pygame.transform.scale(pygame.image.load("left field.png"), (WIDTH, HEIGHT))
 #bg_right = pygame.transform.scale(pygame.image.load("bg_right.png"), (WIDTH, HEIGHT))
 bg_street1 = pygame.transform.scale(pygame.image.load("Road to the house.png"), (WIDTH, HEIGHT))
 bg_street2 = pygame.transform.scale(pygame.image.load("Road to the house.png"), (WIDTH, HEIGHT))
@@ -228,6 +228,8 @@ while running:
         screen.blit(bg_street1, (0, 0))
     elif game_state == STREET2:
         screen.blit(bg_street2, (0, 0))
+    elif game_state == LEFT:
+        screen.blit(bg_left, (0, 0))
     else:
         screen.fill(WHITE)
 
