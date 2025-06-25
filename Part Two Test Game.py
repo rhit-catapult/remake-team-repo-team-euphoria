@@ -110,19 +110,9 @@ while running:
         if kyle.rect.left < 0:
             game_state = AREA1
             kyle.rect.right = WIDTH - 10
-    screen.fill(WHITE)
-    if game_state == AREA1:
-        # Draw Area 1 borders
-        pygame.draw.rect(screen, BLACK, border_top_1)
-        pygame.draw.rect(screen, BLACK, border_left_1)
-        pygame.draw.rect(screen, BLACK, border_bottom_1)
-    elif game_state == AREA2:
-        # Draw Area 2 borders
-        pygame.draw.rect(screen, BLACK, border_right_2)
-        pygame.draw.rect(screen, BLACK, border_bottom_2)
-        pygame.draw.rect(screen, BLACK, border_top_2)
-        # Draw door
-        pygame.draw.rect(screen, (200, 100, 0), door_hitbox)
+        # DEBUG: Print rects
+        print(f"Kyle rect: {kyle.rect}")
+        print(f"Inflated door rect: {door_hitbox.inflate(20, 20)}")
         # Show 'Enter the house' button if Kyle is within 20px of the door
         if kyle.rect.colliderect(door_hitbox.inflate(20, 20)):
             print('Kyle is within 20px of the door!')  # DEBUG
@@ -130,7 +120,7 @@ while running:
             enter_house_btn_rect = draw_enter_house_button()
         else:
             show_cutscene_button = False
-    if game_state == CUTSCENE:
+    elif game_state == CUTSCENE:
         screen.fill((220, 220, 220))
         # TODO: Place your cutscene logic here
         text = font.render("Cutscene goes here!", True, BLACK)
