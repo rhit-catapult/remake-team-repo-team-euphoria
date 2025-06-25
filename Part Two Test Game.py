@@ -55,16 +55,16 @@ border_top_2 = pygame.Rect(0, 300, WIDTH, 10)
 # Door hitbox in Area 2 (centered on the 300px border)
 door_width, door_height = 60, 10
 door_x = WIDTH // 2 - door_width // 2
-door_y = 300 - door_height
+door_y = 300 - door_height - 2  # Place the door just above the border
 
 door_hitbox = pygame.Rect(door_x, door_y, door_width, door_height)
 
 # Button for cutscene
 font = pygame.font.SysFont(None, 30)
 def draw_enter_house_button():
-    # Make the button larger
-    btn_width, btn_height = 220, 70
-    btn_rect = pygame.Rect(WIDTH//2 - btn_width//2, 320, btn_width, btn_height)
+    # Place the button at the bottom of the screen
+    btn_width, btn_height = 220, 60
+    btn_rect = pygame.Rect(WIDTH//2 - btn_width//2, HEIGHT - 80, btn_width, btn_height)
     pygame.draw.rect(screen, GRAY, btn_rect)
     pygame.draw.rect(screen, BLACK, btn_rect, 3)  # Optional: add border for visibility
     text_surf = font.render("Enter the house", True, BLACK)
