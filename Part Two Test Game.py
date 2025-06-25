@@ -72,6 +72,7 @@ def draw_enter_house_button():
 # Main loop
 running = True
 show_cutscene_button = False
+enter_house_btn_rect = pygame.Rect(0, 0, 0, 0)  # Always define the button rect
 while running:
     keys = pygame.key.get_pressed()
     for event in pygame.event.get():
@@ -128,6 +129,7 @@ while running:
             enter_house_btn_rect = draw_enter_house_button()
         else:
             show_cutscene_button = False
+            enter_house_btn_rect = pygame.Rect(0, 0, 0, 0)  # Reset when not in zone
     if game_state == CUTSCENE:
         screen.fill((220, 220, 220))
         # TODO: Place your cutscene logic here
