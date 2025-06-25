@@ -1,117 +1,143 @@
-from symtable import Class
-
 import pygame
 import sys
 
-import pygame
-
 # Initialize Pygame
 pygame.init()
 
-# Set up display
+# Screen setup
 WIDTH, HEIGHT = 800, 600
-win = pygame.display.set_mode((WIDTH, HEIGHT))
-pygame.display.set_caption("Moving Sprite")
-
-# Define colors
-WHITE = (255, 255, 255)
-BLUE = (0, 0, 255)
-
-# Sprite class
-class Kyle(pygame.sprite.Sprite):
-    def __init__(self, x, y):
-        super().__init__()
-        self.image = pygame.Surface((50, 50))  # Sprite size
-        self.image.fill(BLUE)                  # Sprite color
-        self.rect = self.image.get_rect()
-        self.rect.topleft = (x, y)
-        self.speed = 5
-
-    def update(self, keys):
-        if keys[pygame.K_LEFT]:
-            self.rect.x -= self.speed
-        if keys[pygame.K_RIGHT]:
-            self.rect.x += self.speed
-        if keys[pygame.K_UP]:
-            self.rect.y -= self.speed
-        if keys[pygame.K_DOWN]:
-            self.rect.y += self.speed
-
-# Initialize Pygame
-pygame.init()
-
-# Screen dimensions
-SCREEN_WIDTH = 800
-SCREEN_HEIGHT = 600
-BORDER_WIDTH = 10
+screen = pygame.display.set_mode((WIDTH, HEIGHT))
+pygame.display.set_caption("Part Two Test Game")
+clock = pygame.time.Clock()
 
 # Colors
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
 BLUE = (0, 100, 255)
-RED = (255, 0, 0)
+GRAY = (180, 180, 180)
 
-# Set up the screen
-screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
-pygame.display.set_caption("Hitbox Border Game")
+# Game states
+AREA1, AREA2, CUTSCENE = "area1", "area2", "cutscene"
+game_state = AREA1
 
-#Sprite class
+# Kyle sprite
+class Kyle(pygame.sprite.Sprite):
+    def __init__(self, x, y):
+        super().__init__()
+        self.image = pygame.image.load("kyle (2).png").convert_alpha()
+        self.image = pygame.transform.scale(self.image, (40, 60))
+        self.rect = self.image.get_rect(center=(x, y))
+        self.speed = 5
 
+    def move(self, keys):
+        if keys[pygame.K_a]:
+            self.rect.x -= self.speed
+        if keys[pygame.K_d]:
+            self.rect.x += self.speed
+        if keys[pygame.K_w]:
+            self.rect.y -= self.speed
+        if keys[pygame.K_s]:
+            self.rect.y += self.speed
 
-# Player settings
-player_size = 40
-player_color = BLUE
-player_speed = 5
+# Instantiate Kyle in Area 1 (spawn near left-bottom)
+kyle = Kyle(80, HEIGHT - 80)
 
-# Player spawn at bottom-right
-player_rect = pygame.Rect(
-    SCREEN_WIDTH - BORDER_WIDTH - player_size,
-    SCREEN_HEIGHT - BORDER_WIDTH - player_size,
-    player_size,
-    player_size
-)
+# Borders for Area 1
+border_top_1 = pygame.Rect(0, 0, WIDTH, 10)
+border_left_1 = pygame.Rect(0, 0, 10, HEIGHT)
+border_bottom_1 = pygame.Rect(0, HEIGHT - 10, WIDTH, 10)
 
-# Clock for controlling frame rate
-clock = pygame.time.Clock()
+# Borders for Area 2
+border_right_2 = pygame.Rect(WIDTH - 10, 0, 10, HEIGHT)
+border_bottom_2 = pygame.Rect(0, HEIGHT - 10, WIDTH, 10)
+border_top_2 = pygame.Rect(0, 300, WIDTH, 10)
 
-# Main game loop
+# Door hitbox in Area 2 (centered on the 300px border)
+door_width, door_height = 60, 10
+door_x = WIDTH // 2 - door_width // 2
+door_y = 300 - door_height
+
+door_hitbox = pygame.Rect(door_x, door_y, door_width, door_height)
+
+# Button for cutscene
+font = pygame.font.SysFont(None, 30)
+def draw_enter_house_button():
+    btn_width, btn_height = 200, 50
+    btn_rect = pygame.Rect(WIDTH//2 - btn_width//2, HEIGHT - btn_height - 20, btn_width, btn_height)
+    pygame.draw.rect(screen, GRAY, btn_rect)
+    text_surf = font.render("Enter the house", True, BLACK)
+    text_rect = text_surf.get_rect(center=btn_rect.center)
+    screen.blit(text_surf, text_rect)
+    return btn_rect
+
+# Main loop
 running = True
+show_cutscene_button = False
 while running:
-    screen.fill(WHITE)
-
-    # Draw borders
-    pygame.draw.rect(screen, BLACK, (0, 0, SCREEN_WIDTH, BORDER_WIDTH))  # Top
-    pygame.draw.rect(screen, BLACK, (0, 0, BORDER_WIDTH, SCREEN_HEIGHT))  # Left
-    pygame.draw.rect(screen, BLACK, (0, SCREEN_HEIGHT - BORDER_WIDTH, SCREEN_WIDTH, BORDER_WIDTH))  # Bottom
-    pygame.draw.rect(screen, BLACK, (SCREEN_WIDTH - BORDER_WIDTH, 0, BORDER_WIDTH, SCREEN_HEIGHT))  # Right
-
-    # Draw player
-    pygame.draw.rect(screen, player_color, player_rect)
-
-    # Event handling
+    keys = pygame.key.get_pressed()
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
+        elif event.type == pygame.MOUSEBUTTONDOWN and show_cutscene_button and game_state == AREA2:
+            if enter_house_btn_rect.collidepoint(event.pos):
+                game_state = CUTSCENE
 
-    # Key press handling
-    # Key press handling (WASD)
-    keys = pygame.key.get_pressed()
-    if keys[pygame.K_a]:  # Left
-        player_rect.x -= player_speed
-    if keys[pygame.K_d]:  # Right
-        player_rect.x += player_speed
-    if keys[pygame.K_w]:  # Up
-        player_rect.y -= player_speed
-    if keys[pygame.K_s]:  # Down
-        player_rect.y += player_speed
-
-    # Collision with borders
-    player_rect.left = max(player_rect.left, BORDER_WIDTH)
-    player_rect.right = min(player_rect.right, SCREEN_WIDTH - BORDER_WIDTH)
-    player_rect.top = max(player_rect.top, BORDER_WIDTH)
-    player_rect.bottom = min(player_rect.bottom, SCREEN_HEIGHT - BORDER_WIDTH)
-
-    # Update the display
+    if game_state == AREA1:
+        kyle.move(keys)
+        # Area 1 borders
+        if kyle.rect.left < border_left_1.right:
+            kyle.rect.left = border_left_1.right
+        if kyle.rect.top < border_top_1.bottom:
+            kyle.rect.top = border_top_1.bottom
+        if kyle.rect.bottom > border_bottom_1.top:
+            kyle.rect.bottom = border_bottom_1.top
+        # Transition to Area 2 (right edge)
+        if kyle.rect.right >= WIDTH:
+            game_state = AREA2
+            kyle.rect.left = 10  # Enter Area 2 from left
+    elif game_state == AREA2:
+        kyle.move(keys)
+        # Area 2 borders
+        if kyle.rect.right > border_right_2.left:
+            kyle.rect.right = border_right_2.left
+        if kyle.rect.bottom > border_bottom_2.top:
+            kyle.rect.bottom = border_bottom_2.top
+        if kyle.rect.top < border_top_2.bottom:
+            # Only block if not in the door area
+            if not kyle.rect.colliderect(door_hitbox.inflate(10, 10)):
+                kyle.rect.top = border_top_2.bottom
+        # Transition back to Area 1 (left edge)
+        if kyle.rect.left < 0:
+            game_state = AREA1
+            kyle.rect.right = WIDTH - 10
+    screen.fill(WHITE)
+    if game_state == AREA1:
+        # Draw Area 1 borders
+        pygame.draw.rect(screen, BLACK, border_top_1)
+        pygame.draw.rect(screen, BLACK, border_left_1)
+        pygame.draw.rect(screen, BLACK, border_bottom_1)
+    elif game_state == AREA2:
+        # Draw Area 2 borders
+        pygame.draw.rect(screen, BLACK, border_right_2)
+        pygame.draw.rect(screen, BLACK, border_bottom_2)
+        pygame.draw.rect(screen, BLACK, border_top_2)
+        # Draw door
+        pygame.draw.rect(screen, (200, 100, 0), door_hitbox)
+        # Show 'Enter the house' button if Kyle is within 20px of the door
+        if kyle.rect.colliderect(door_hitbox.inflate(20, 20)):
+            print('Kyle is within 20px of the door!')  # DEBUG
+            show_cutscene_button = True
+            enter_house_btn_rect = draw_enter_house_button()
+        else:
+            show_cutscene_button = False
+    if game_state == CUTSCENE:
+        screen.fill((220, 220, 220))
+        # TODO: Place your cutscene logic here
+        text = font.render("Cutscene goes here!", True, BLACK)
+        screen.blit(text, (WIDTH//2 - text.get_width()//2, HEIGHT//2))
+    # Draw Kyle
+    if game_state != CUTSCENE:
+        screen.blit(kyle.image, kyle.rect)
     pygame.display.flip()
     clock.tick(60)
 
