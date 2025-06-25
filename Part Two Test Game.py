@@ -62,8 +62,7 @@ door_hitbox = pygame.Rect(door_x, door_y, door_width, door_height)
 # Button for cutscene
 font = pygame.font.SysFont(None, 30)
 def draw_enter_house_button():
-    btn_width, btn_height = 200, 50
-    btn_rect = pygame.Rect(WIDTH//2 - btn_width//2, HEIGHT - btn_height - 20, btn_width, btn_height)
+    btn_rect = pygame.Rect(WIDTH//2 - 80, 320, 160, 40)
     pygame.draw.rect(screen, GRAY, btn_rect)
     text_surf = font.render("Enter the house", True, BLACK)
     text_rect = text_surf.get_rect(center=btn_rect.center)
@@ -110,17 +109,26 @@ while running:
         if kyle.rect.left < 0:
             game_state = AREA1
             kyle.rect.right = WIDTH - 10
-        # DEBUG: Print rects
-        print(f"Kyle rect: {kyle.rect}")
-        print(f"Inflated door rect: {door_hitbox.inflate(20, 20)}")
-        # Show 'Enter the house' button if Kyle is within 20px of the door
-        if kyle.rect.colliderect(door_hitbox.inflate(20, 20)):
-            print('Kyle is within 20px of the door!')  # DEBUG
+    screen.fill(WHITE)
+    if game_state == AREA1:
+        # Draw Area 1 borders
+        pygame.draw.rect(screen, BLACK, border_top_1)
+        pygame.draw.rect(screen, BLACK, border_left_1)
+        pygame.draw.rect(screen, BLACK, border_bottom_1)
+    elif game_state == AREA2:
+        # Draw Area 2 borders
+        pygame.draw.rect(screen, BLACK, border_right_2)
+        pygame.draw.rect(screen, BLACK, border_bottom_2)
+        pygame.draw.rect(screen, BLACK, border_top_2)
+        # Draw door
+        pygame.draw.rect(screen, (200, 100, 0), door_hitbox)
+        # Show 'Enter the house' button if Kyle is within 10px of the door
+        if kyle.rect.colliderect(door_hitbox.inflate(10, 10)):
             show_cutscene_button = True
             enter_house_btn_rect = draw_enter_house_button()
         else:
             show_cutscene_button = False
-    elif game_state == CUTSCENE:
+    if game_state == CUTSCENE:
         screen.fill((220, 220, 220))
         # TODO: Place your cutscene logic here
         text = font.render("Cutscene goes here!", True, BLACK)
