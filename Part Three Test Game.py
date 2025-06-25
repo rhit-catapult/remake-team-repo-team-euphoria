@@ -5,7 +5,7 @@ import sys
 pygame.init()
 
 # Screen setup
-WIDTH, HEIGHT = 800, 
+WIDTH, HEIGHT = 800, 600
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Part Three Test Game")
 clock = pygame.time.Clock()
@@ -18,11 +18,10 @@ BLUE = (100, 200, 255)
 
 # Font
 font = pygame.font.SysFont(None, 32)
-
 # Define the pop-up area (centered, smaller than the window)
 AREA_WIDTH, AREA_HEIGHT = 500, 400
 AREA_X, AREA_Y = (WIDTH - AREA_WIDTH) // 2, (HEIGHT - AREA_HEIGHT) // 2
-area_rect = pygame.Rect(AREA_X, AREA_Y, AREA_WIDTH, AREA_HEIGHT)
+area_rect = pygame.Rect(0, 0, 800, 600)
 
 # Kyle sprite
 class Kyle(pygame.sprite.Sprite):
