@@ -317,6 +317,6 @@ while running:
     pygame.display.flip()
     clock.tick(60)
 
-# Exit cleanly
+# Exit cleanlyddd
 pygame.quit()
 sys.exit()
