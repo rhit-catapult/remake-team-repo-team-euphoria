@@ -138,10 +138,10 @@ wall_right = pygame.Rect(WIDTH - 10, 0, 10, HEIGHT)
 house_area = pygame.Rect(WIDTH // 2 - 100, 30, 200, 150)
 house_door = pygame.Rect(WIDTH // 2 - 20, 170, 40, 10)
 house_walls = [
-    pygame.Rect(house_area.left, house_area.top, house_area.width, 10),
-    pygame.Rect(house_area.left, house_area.top, 10, house_area.height),
-    pygame.Rect(house_area.right - 10, house_area.top, 10, house_area.height),
-    pygame.Rect(house_area.left, house_area.bottom - 10, house_area.width, 10),
+    pygame.Rect(house_area.left, house_area.top, house_area.width, 5),
+    pygame.Rect(house_area.left, house_area.top, 20, house_area.height),
+    pygame.Rect(house_area.right - 20, house_area.top, 20, house_area.height),
+    pygame.Rect(house_area.left, house_area.bottom - 5, house_area.width, 5),
 ]
 house_exit = pygame.Rect(WIDTH // 2 - 20, HEIGHT - 30, 40, 20)
 
@@ -149,8 +149,6 @@ house_exit = pygame.Rect(WIDTH // 2 - 20, HEIGHT - 30, 40, 20)
 car_box = pygame.Rect(WIDTH - 100, HEIGHT - 100, 80, 60)
 
 # New larger house (in STREET2)
-new_house = pygame.Rect(WIDTH // 2 - 150, 50, 300, 200)
-new_house_door = pygame.Rect(WIDTH // 2 - 30, 230, 60, 10)
 
 # Scene transition
 def change_scene(scene):

@@ -79,7 +79,7 @@ enter_house_button = Button("Enter Your House", (WIDTH//2 - 100, HEIGHT - 40, 20
 leave_house_button = Button("Leave the House", (WIDTH//2 - 100, HEIGHT - 40, 200, 30), lambda: change_scene(CENTER))
 
 # Hitboxes
-wall_top = pygame.Rect(0, 0, WIDTH, 10)
+wall_top = pygame.Rect(0, 0, WIDTH, 20)
 wall_bottom = pygame.Rect(0, HEIGHT - 10, WIDTH, 10)
 wall_left = pygame.Rect(0, 0, 10, HEIGHT)
 wall_right = pygame.Rect(WIDTH - 10, 0, 10, HEIGHT)
@@ -97,7 +97,7 @@ house_exit = pygame.Rect(WIDTH // 2 - 20, HEIGHT - 30, 40, 20)
 
 # Car hitbox and Drive button (in CENTER scene)
 car_box = pygame.Rect(WIDTH - 100, HEIGHT - 100, 80, 60)
-drive_button = Button("Drive", (WIDTH//2 - 60, HEIGHT - 40, 120, 30), lambda: change_scene(CUTSCENE))
+drive_button = Button("Drive", (WIDTH//2 - 60, HEIGHT - 40, 120, 30), lambda: None)
 
 
 # Scene transition
@@ -143,6 +143,26 @@ def handle_house_collisions():
                 if not kyle.rect.colliderect(house_door.inflate(10, 10)):
                     kyle.rect.bottom = wall.top
 
+# Sprite class
+class Player(pygame.sprite.Sprite):
+    def __init__(self, x, y):
+        super().__init__()
+        self.image = pygame.Surface((50, 50))  # Sprite size
+        self.image.fill(BLUE)                  # Sprite color
+        self.rect = self.image.get_rect()
+        self.rect.topleft = (x, y)
+        self.speed = 5
+
+    def update(self, keys):
+        if keys[pygame.K_LEFT]:
+            self.rect.x -= self.speed
+        if keys[pygame.K_RIGHT]:
+            self.rect.x += self.speed
+        if keys[pygame.K_UP]:
+            self.rect.y -= self.speed
+        if keys[pygame.K_DOWN]:
+            self.rect.y += self.speed
+
 # Main loop
 running = True
 level = 0
@@ -161,7 +181,7 @@ while running:
                 if leave_house_button.is_clicked(pos): leave_house_button.action()
             elif game_state == CENTER and kyle.rect.colliderect(car_box.inflate(10, 10)):
                 if drive_button.is_clicked(pos):
-                    drive_button.action()
+                    pass  # Do nothing when Drive is clicked
 
     if game_state != TITLE:
         kyle.move(keys)
