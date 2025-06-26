@@ -16,10 +16,12 @@ FPS = 60
 WHITE = (255, 255, 255)
 RED = (255, 0, 0)
 GREEN = (0, 255, 0)
-CYAN = (0, 255, 255)
-BG_COLOR = (10, 10, 30)
+BLACK = (0, 0, 0)
 
-# Player
+# Fonts
+font = pygame.font.SysFont(None, 28)
+
+# Player setup
 player_width, player_height = 60, 15
 player = pygame.Rect(WIDTH // 2 - player_width // 2, HEIGHT - 60, player_width, player_height)
 player_speed = 6
@@ -28,40 +30,69 @@ player_bullets = []
 player_bullet_speed = -8
 can_shoot = False
 last_shot_time = 0
-SHOT_COOLDOWN = 150  # milliseconds
+SHOT_COOLDOWN = 150
 
-# Alien
+# Alien setup
 alien_size = 100
-alien = pygame.Rect(random.randint(0, WIDTH - alien_size), random.randint(0, HEIGHT - alien_size), alien_size, alien_size)
-alien_speed = 3.0  # 2x faster in Stage 1
-alien_vx, alien_vy = 0, 0  # Used in Stage 2
+alien = pygame.Rect(random.randint(0, WIDTH - alien_size), 50, alien_size, alien_size)
+alien_speed = 3.0
+alien_vx, alien_vy = 0, 0
 alien_bullets = []
 alien_bullet_speed = 4
 alien_health = 0
 
-# Firing timers
+# Timers and stages
 alien_fire_timer = 0
-ALIEN_FIRE_INTERVAL = 20  # 3 shots/sec at 60 FPS
-
-# Stage / Timer
+ALIEN_FIRE_INTERVAL = 20
 stage = 1
 survival_time = 30
-start_ticks = None  # Start after countdown
-
-# Fonts
-font = pygame.font.SysFont(None, 36)
+start_ticks = None
 
 # Game state
 game_over = False
 player_won = False
 
-# Countdown
-countdown_active = True
-countdown_start_time = pygame.time.get_ticks()
-countdown_duration = 3000  # 3 seconds
+# Fade-in and dialogue
+fade_in = True
+fade_alpha = 255
+dialog_after_fade = False
+dialog_index = 0
+intro_dialog = [
+    "Kyle: Ugh, what happened?",
+    "Claudia: Hey?! Why are you awake?",
+    "Claudia: I guess I didn’t put enough drugs in that drink.",
+    "Kyle: WHAT?! YOU DRUGGED ME?!",
+    "Kyle: WHY WOULD YOU DO THIS?!",
+    "Claudia: Well, look at yourself, you are lonely and no one will remember you.",
+    "Claudia: Besides that, since you stay inside all the time, your skin has been protected from the sun, and it is in perfect condition to be harvested and added to my collection.",
+    "Claudia: Well, any who, enough talking, time to die.",
+    "Kyle: AHHHH! GET AWAY!"
+]
+transition_dialog = [
+    "*Kyle finds and picks a knife up off the ground",
+    "Claudia: LET ME CUT OFF YOUR SKIN!"
+]
+show_transition_dialog = False
+transition_index = 0
+ok_button = pygame.Rect(WIDTH // 2 + 200, HEIGHT - 100, 100, 40)
 
-# Game loop
+# Helper to draw text with wrapping
+def draw_text(surface, text, rect, font, color):
+    words = text.split(' ')
+    line = ''
+    lines = []
+    for word in words:
+        test_line = f"{line} {word}".strip()
+        if font.size(test_line)[0] < rect.width - 20:
+            line = test_line
+        else:
+            lines.append(line)
+            line = word
+    lines.append(line)
+    for i, l in enumerate(lines):
+        surface.blit(font.render(l, True, color), (rect.x + 10, rect.y + 10 + i * 30))
 
+# Main game loop
 while True:
     background = pygame.image.load("cobble stone.png").convert()
     background = pygame.transform.scale(background, (WIDTH, HEIGHT))
@@ -83,8 +114,24 @@ while True:
         if event.type == pygame.QUIT:
             pygame.quit()
             sys.exit()
+        elif event.type == pygame.MOUSEBUTTONDOWN:
+            mouse_pos = pygame.mouse.get_pos()
+            if dialog_after_fade and ok_button.collidepoint(mouse_pos):
+                dialog_index += 1
+                if dialog_index >= len(intro_dialog):
+                    dialog_after_fade = False
+                    start_ticks = pygame.time.get_ticks()
+            elif show_transition_dialog and ok_button.collidepoint(mouse_pos):
+                transition_index += 1
+                if transition_index >= len(transition_dialog):
+                    show_transition_dialog = False
+                    stage = 2
+                    alien.x, alien.y = WIDTH // 2 - alien_size // 2, 50
+                    alien_health = 20
+                    alien_vx, alien_vy = 4.5, 4.5
+                    ALIEN_FIRE_INTERVAL = 13
+                    can_shoot = True
 
-    # Controls
     keys = pygame.key.get_pressed()
     if keys[pygame.K_a] and player.left > 0:
         player.x -= player_speed
@@ -97,61 +144,59 @@ while True:
 
     current_time = pygame.time.get_ticks()
 
-    # === Countdown Display ===
-    if countdown_active:
-        elapsed = current_time - countdown_start_time
-        remaining = 3 - elapsed // 1000
-        if elapsed < countdown_duration:
-            if remaining > 0:
-                countdown_text = font.render(str(remaining), True, WHITE)
-            else:
-                countdown_text = font.render("GO!", True, WHITE)
-            screen.blit(countdown_text, (WIDTH // 2 - countdown_text.get_width() // 2, HEIGHT // 2))
+    # === Fade In ===
+    if fade_in:
+        fade_surface = pygame.Surface((WIDTH, HEIGHT))
+        fade_surface.fill((0, 0, 0))
+        fade_surface.set_alpha(int(fade_alpha))
+        screen.blit(fade_surface, (0, 0))
+        if fade_alpha > 0:
+            fade_alpha -= 255 / (FPS * 5)
         else:
-            countdown_active = False
-            if stage == 1:
-                start_ticks = pygame.time.get_ticks()
-            elif stage == 2:
-                # already set in transition
-                pass
+            fade_in = False
+            dialog_after_fade = True
+
+    # === Dialogue After Fade ===
+    elif dialog_after_fade:
+        box_rect = pygame.Rect(50, HEIGHT - 150, WIDTH - 100, 100)
+        pygame.draw.rect(screen, WHITE, box_rect)
+        pygame.draw.rect(screen, BLACK, box_rect, 4)
+        draw_text(screen, intro_dialog[dialog_index], box_rect, font, BLACK)
+
+        pygame.draw.rect(screen, GREEN, ok_button)
+        pygame.draw.rect(screen, BLACK, ok_button, 2)
+        screen.blit(font.render("OK", True, BLACK), (ok_button.centerx - 20, ok_button.centery - 12))
+
+    elif show_transition_dialog:
+        box_rect = pygame.Rect(50, HEIGHT - 150, WIDTH - 100, 100)
+        pygame.draw.rect(screen, WHITE, box_rect)
+        pygame.draw.rect(screen, BLACK, box_rect, 4)
+        draw_text(screen, transition_dialog[transition_index], box_rect, font, BLACK)
+
+        pygame.draw.rect(screen, GREEN, ok_button)
+        pygame.draw.rect(screen, BLACK, ok_button, 2)
+        screen.blit(font.render("OK", True, BLACK), (ok_button.centerx - 20, ok_button.centery - 12))
 
     elif not game_over:
-        # === Player Shooting ===
-        if can_shoot and keys[pygame.K_SPACE] and current_time - last_shot_time > SHOT_COOLDOWN:
-            bullet = pygame.Rect(player.centerx - 4, player.top - 10, 8, 20)
-            player_bullets.append(bullet)
-            last_shot_time = current_time
-
-        # === Move Alien ===
+        # === Stage 1 movement ===
         if stage == 1:
-            # Follow player
             dx = player.centerx - alien.centerx
             dy = player.centery - alien.centery
             dist = math.hypot(dx, dy)
             if dist != 0:
-                vel_x = (dx / dist) * alien_speed
-                vel_y = (dy / dist) * alien_speed
-                alien.x += int(vel_x)
-                alien.y += int(vel_y)
+                alien.x += int((dx / dist) * alien_speed)
+                alien.y += int((dy / dist) * alien_speed)
+
+        # === Stage 2 movement (bounce) ===
         elif stage == 2:
-            # Bounce around
             alien.x += alien_vx
             alien.y += alien_vy
-
-            if alien.left <= 0:
-                alien.left = 0
+            if alien.left <= 0 or alien.right >= WIDTH:
                 alien_vx *= -1
-            elif alien.right >= WIDTH:
-                alien.right = WIDTH
-                alien_vx *= -1
-            if alien.top <= 0:
-                alien.top = 0
-                alien_vy *= -1
-            elif alien.bottom >= HEIGHT:
-                alien.bottom = HEIGHT
+            if alien.top <= 0 or alien.bottom >= HEIGHT:
                 alien_vy *= -1
 
-        # === Alien Fire ===
+        # === Alien firing ===
         alien_fire_timer += 1
         if alien_fire_timer >= ALIEN_FIRE_INTERVAL:
             alien_fire_timer = 0
@@ -162,12 +207,9 @@ while True:
                 vel_x = (dx / dist) * alien_bullet_speed
                 vel_y = (dy / dist) * alien_bullet_speed
                 bullet = pygame.Rect(alien.centerx, alien.centery, 24, 24)
-                alien_bullets.append({
-                    "rect": bullet,
-                    "vel": (vel_x, vel_y)
-                })
+                alien_bullets.append({"rect": bullet, "vel": (vel_x, vel_y)})
 
-        # === Move Alien Bullets ===
+        # === Move bullets ===
         for bullet in alien_bullets[:]:
             bullet["rect"].x += bullet["vel"][0]
             bullet["rect"].y += bullet["vel"][1]
@@ -180,7 +222,6 @@ while True:
                     game_over = True
                     player_won = False
 
-        # === Move Player Bullets ===
         for bullet in player_bullets[:]:
             bullet.y += player_bullet_speed
             if bullet.bottom < 0:
@@ -192,20 +233,19 @@ while True:
                     game_over = True
                     player_won = True
 
-        # === Stage Transition ===
-        if stage == 1:
+        # === Player Shooting ===
+        if stage == 2 and keys[pygame.K_SPACE] and current_time - last_shot_time > SHOT_COOLDOWN:
+            bullet = pygame.Rect(player.centerx - 4, player.top - 10, 8, 20)
+            player_bullets.append(bullet)
+            last_shot_time = current_time
+
+        # === Stage 1 survival timer ===
+        if stage == 1 and start_ticks:
             seconds = (pygame.time.get_ticks() - start_ticks) / 1000
             if seconds >= survival_time:
-                stage = 2
-                countdown_active = True
-                countdown_start_time = pygame.time.get_ticks()
-                can_shoot = True
-                alien_health = 20
-                alien_vx = 4.5  # Bounce speed
-                alien_vy = 4.5
-                ALIEN_FIRE_INTERVAL = 13
+                show_transition_dialog = True
 
-        # === Draw ===
+        # === Draw Everything ===
         screen.blit(girlfriend, alien.topleft)
         for bullet in alien_bullets:
             screen.blit(alien_bullet_img, bullet["rect"].topleft)
@@ -213,23 +253,16 @@ while True:
             screen.blit(player_bullet_img, bullet.topleft)
         screen.blit(player_img, player.topleft)
 
-        # UI
-        health_text = font.render(f"Health: {player_health}", True, WHITE)
-        screen.blit(health_text, (10, 10))
+        screen.blit(font.render(f"Health: {player_health}", True, WHITE), (10, 10))
         if stage == 1 and start_ticks:
             time_left = max(0, int(survival_time - (pygame.time.get_ticks() - start_ticks) / 1000))
-            timer_text = font.render(f"Survive: {time_left}s", True, WHITE)
-            screen.blit(timer_text, (10, 40))
+            screen.blit(font.render(f"Survive: {time_left}s", True, WHITE), (10, 40))
         elif stage == 2:
-            alien_hp_text = font.render(f"Alien HP: {alien_health}", True, WHITE)
-            screen.blit(alien_hp_text, (10, 40))
+            screen.blit(font.render(f"Alien HP: {alien_health}", True, WHITE), (10, 40))
 
     elif game_over:
         msg = "You Survived and Won!" if player_won else "You were Defeated!"
-        msg_surface = font.render(msg, True, WHITE)
-        screen.blit(msg_surface, (WIDTH // 2 - msg_surface.get_width() // 2, HEIGHT // 2))
-
-
+        screen.blit(font.render(msg, True, WHITE), (WIDTH // 2 - 100, HEIGHT // 2))
 
     pygame.display.flip()
     clock.tick(FPS)
