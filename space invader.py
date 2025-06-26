@@ -25,11 +25,11 @@ font = pygame.font.SysFont(None, 28)
 # Load backgrounds and audio
 win_bg = pygame.image.load("th good ending.jpg").convert()
 win_bg = pygame.transform.scale(win_bg, (WIDTH, HEIGHT))
-win_music = pygame.mixer.Sound("your_win_music.wav")
+#win_music = pygame.mixer.Sound("your_win_music.wav")
 
-loss_bg = pygame.image.load("th bad ending.jpg").convert()
-loss_bg = pygame.transform.scale(loss_bg, (WIDTH, HEIGHT))
-loss_music = pygame.mixer.Sound("your_loss_music.wav")
+#loss_bg = pygame.image.load("th bad ending.jpg").convert()
+#loss_bg = pygame.transform.scale(loss_bg, (WIDTH, HEIGHT))
+#loss_music = pygame.mixer.Sound("your_loss_music.wav")
 
 # Game state
 game_over = False
@@ -42,8 +42,8 @@ end_music_played = False
 # Player setup
 player_width, player_height = 60, 15
 player = pygame.Rect(WIDTH // 2 - player_width // 2, HEIGHT - 60, player_width, player_height)
-player_speed = 6
-player_health = 100
+player_speed = 20
+player_health = 6
 player_bullets = []
 player_bullet_speed = -8
 can_shoot = False
@@ -53,7 +53,7 @@ SHOT_COOLDOWN = 150
 # Alien setup
 alien_size = 100
 alien = pygame.Rect(random.randint(0, WIDTH - alien_size), 50, alien_size, alien_size)
-alien_speed = 3.0
+alien_speed = 4
 alien_vx, alien_vy = 0, 0
 alien_bullets = []
 alien_bullet_speed = 4
