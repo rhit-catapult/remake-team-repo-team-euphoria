@@ -3,6 +3,9 @@ import sys
 
 pygame.init()
 
+# Initialize mixer for music
+pygame.mixer.init()
+
 # Screen setup
 WIDTH, HEIGHT = 800, 600
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
@@ -106,6 +109,7 @@ house_exit = pygame.Rect(WIDTH // 2 - 20, HEIGHT - 30, 40, 20)
 car_box = pygame.Rect(WIDTH - 100, HEIGHT - 100, 80, 60)
 drive_button = Button("Drive", (WIDTH//2 - 60, HEIGHT - 40, 120, 30), lambda: None)
 
+music_playing = False
 
 # Scene transition
 def change_scene(scene):
@@ -196,7 +200,11 @@ while running:
         elif event.type == pygame.MOUSEBUTTONDOWN:
             pos = event.pos
 
-            if game_state == TITLE and start_button.is_clicked(pos): start_button.action()
+            if game_state == TITLE and start_button.is_clicked(pos):
+                start_button.action()
+                if music_playing:
+                    pygame.mixer.music.stop()
+                    music_playing = False
             elif game_state == CENTER and kyle.rect.colliderect(house_door.inflate(10, 10)):
                 if enter_house_button.is_clicked(pos): enter_house_button.action()
             elif game_state == HOUSE and kyle.rect.colliderect(house_exit.inflate(10, 10)):
@@ -220,9 +228,16 @@ while running:
 
     # Draw backgrounds for each scene
     if game_state == TITLE:
+        if not music_playing:
+            pygame.mixer.music.load('Renai Circulation恋愛サーキュレーション歌ってみたなみりん.mp3')
+            pygame.mixer.music.play(-1)
+            music_playing = True
         screen.blit(bg_title, (0, 0))
         start_button.draw(screen)
     elif game_state == CENTER:
+        if music_playing:
+            pygame.mixer.music.stop()
+            music_playing = False
         screen.blit(bg_center, (0, 0))
         pygame.draw.rect(screen, DARK_GRAY, house_area, 2)
         pygame.draw.rect(screen, BLUE, house_door)

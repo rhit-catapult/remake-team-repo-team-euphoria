@@ -20,19 +20,14 @@ BLUE = (0, 100, 255)
 GRAY = (180, 180, 180)
 
 # Game states
-<<<<<<< HEAD
 TITLE, AREA1, AREA2, CUTSCENE = "title", "area1", "area2", "cutscene"
 game_state = TITLE
 
-=======
 AREA1, AREA2, CUTSCENE = "area1", "area2", "cutscene"
 game_state = AREA1
 area1 = pygame.transform.scale(pygame.image.load("Road to the house.png"), (WIDTH, HEIGHT))
 area2 = pygame.transform.scale(pygame.image.load("GH new.png"), (WIDTH, HEIGHT))
-<<<<<<< Updated upstream
-=======
->>>>>>> 4a1087656a71021f4bc288784e96f3c13a4788cf
->>>>>>> Stashed changes
+
 # Kyle sprite
 class Kyle(pygame.sprite.Sprite):
     def __init__(self, x, y):
