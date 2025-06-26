@@ -195,6 +195,7 @@ while running:
             running = False
         elif event.type == pygame.MOUSEBUTTONDOWN:
             pos = event.pos
+
             if game_state == TITLE and start_button.is_clicked(pos): start_button.action()
             elif game_state == CENTER and kyle.rect.colliderect(house_door.inflate(10, 10)):
                 if enter_house_button.is_clicked(pos): enter_house_button.action()
