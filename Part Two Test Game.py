@@ -51,12 +51,12 @@ border_bottom_1 = pygame.Rect(0, HEIGHT - 10, WIDTH, 10)
 # Borders for Area 2
 border_right_2 = pygame.Rect(WIDTH - 10, 0, 10, HEIGHT)
 border_bottom_2 = pygame.Rect(0, HEIGHT - 10, WIDTH, 10)
-border_top_2 = pygame.Rect(0, 300, WIDTH, 10)
+border_top_2 = pygame.Rect(0, 320, WIDTH, 10)
 
-# Door hitbox in Area 2 (centered on the 300px border)
+# Door hitbox in Area 2 (centered on he 300px border)
 door_width, door_height = 60, 10
-door_x = WIDTH // 2 - door_width // 2
-door_y = 300 - door_height - 2  # Place the door just above the border
+door_x = WIDTH // 1.9- door_width // 2
+door_y = 320 - door_height - 2  # Place the door just above the border
 door_hitbox = pygame.Rect(door_x, door_y, door_width, door_height)
 
 # Button for cutscene
