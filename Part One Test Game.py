@@ -3,6 +3,9 @@ import sys
 
 pygame.init()
 
+# Initialize mixer for music
+pygame.mixer.init()
+
 # Screen setup
 WIDTH, HEIGHT = 800, 600
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
@@ -106,6 +109,7 @@ house_exit = pygame.Rect(WIDTH // 2 - 20, HEIGHT - 30, 40, 20)
 car_box = pygame.Rect(WIDTH - 100, HEIGHT - 100, 80, 60)
 drive_button = Button("Drive", (WIDTH//2 - 60, HEIGHT - 40, 120, 30), lambda: None)
 
+music_playing = False
 
 # Scene transition
 def change_scene(scene):
@@ -196,7 +200,11 @@ while running:
         elif event.type == pygame.MOUSEBUTTONDOWN:
             pos = event.pos
 
-            if game_state == TITLE and start_button.is_clicked(pos): start_button.action()
+            if game_state == TITLE and start_button.is_clicked(pos):
+                start_button.action()
+                if music_playing:
+                    pygame.mixer.music.stop()
+                    music_playing = False
             elif game_state == CENTER and kyle.rect.colliderect(house_door.inflate(10, 10)):
                 if enter_house_button.is_clicked(pos): enter_house_button.action()
             elif game_state == HOUSE and kyle.rect.colliderect(house_exit.inflate(10, 10)):
@@ -220,37 +228,34 @@ while running:
 
     # Draw backgrounds for each scene
     if game_state == TITLE:
+        if not music_playing:
+            pygame.mixer.music.load('Renai Circulation恋愛サーキュレーション歌ってみたなみりん.mp3')
+            pygame.mixer.music.play(-1)
+            music_playing = True
         screen.blit(bg_title, (0, 0))
         start_button.draw(screen)
     elif game_state == CENTER:
+        if music_playing:
+            pygame.mixer.music.stop()
+            music_playing = False
         screen.blit(bg_center, (0, 0))
-        pygame.draw.rect(screen, DARK_GRAY, house_area, 2)
-        pygame.draw.rect(screen, BLUE, house_door)
-        pygame.draw.rect(screen, BLACK, car_box, 2)
         handle_wall_collisions()
         handle_house_collisions()
         if kyle.rect.colliderect(house_door.inflate(10, 10)):
             enter_house_button.draw(screen)
         elif kyle.rect.colliderect(car_box.inflate(10, 10)):
             drive_button.draw(screen)
-        pygame.draw.rect(screen, BLACK, wall_left)
-        pygame.draw.rect(screen, BLACK, wall_right)
-        pygame.draw.rect(screen, BLACK, wall_top)
-        pygame.draw.rect(screen, BLACK, wall_bottom)
     elif game_state == HOUSE:
         screen.blit(bg_house, (0, 0))
-        pygame.draw.rect(screen, BLUE, house_exit)
         handle_wall_collisions()
         if kyle.rect.colliderect(house_exit.inflate(10, 10)):
             leave_house_button.draw(screen)
     elif game_state == LEFT:
         screen.blit(bg_left, (0, 0))
         handle_wall_collisions()
-        pygame.draw.rect(screen, BLACK, wall_left)
     elif game_state == RIGHT:
         screen.blit(bg_right, (0, 0))
         handle_wall_collisions()
-        pygame.draw.rect(screen, BLACK, wall_right)
     elif game_state == CUTSCENE:
         screen.fill(WHITE)
         font = pygame.font.SysFont(None, 40)

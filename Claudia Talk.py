@@ -3,14 +3,19 @@ import sys
 
 pygame.init()
 
+# === AUDIO SETUP ===
+pygame.mixer.init()
+pygame.mixer.music.load("ytmp3free.cc_george-michaels-careless-whisper-slowed-instrumental-youtubemp3free.org.mp3")  # <<< Replace with your audio file
+pygame.mixer.music.play(-1)  # Loop indefinitely
+
 # Screen setup
 WIDTH, HEIGHT = 800, 600
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Visual Novel")
 
-# Load Backgrounds
-bg1 = pygame.transform.scale(pygame.image.load("cobble stone.png"), (WIDTH, HEIGHT))  # Messages 1–7
-bg2 = pygame.transform.scale(pygame.image.load("GH_inside.png"), (WIDTH, HEIGHT))  # Messages 8+
+# Load and scale backgrounds
+bg1 = pygame.transform.scale(pygame.image.load("claudia talk.png"), (WIDTH, HEIGHT))
+bg2 = pygame.transform.scale(pygame.image.load("claudia din.jpg"), (WIDTH, HEIGHT))
 
 # Fonts and colors
 font = pygame.font.SysFont(None, 28)
@@ -22,7 +27,7 @@ TEXTBOX_COLOR = (240, 240, 240)
 TEXTBOX_HEIGHT = 150
 textbox_rect = pygame.Rect(50, HEIGHT - TEXTBOX_HEIGHT - 30, WIDTH - 100, TEXTBOX_HEIGHT)
 
-# All 25 messages
+# Messages
 messages = [
     "Claudia: WOWIE ZOWIE IT IS SOOOOOO NICE TO FINALLY SEE YOU!! *hugs Kyle weirdly tight* AND FEEL YOU!!",
     "Kyle: Um *gently pushes Claudia away and backs up* Yeah, it's nice to meet you too",
@@ -53,6 +58,10 @@ messages = [
 ]
 
 current_message = 0
+fade_in = True
+fade_out = False
+fade_alpha = 255
+fade_speed = 5
 
 def wrap_text(text, font, max_width):
     words = text.split(' ')
@@ -70,16 +79,26 @@ def wrap_text(text, font, max_width):
 
 # Main loop
 running = True
+clock = pygame.time.Clock()
+
 while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
         elif event.type == pygame.MOUSEBUTTONDOWN:
-            if current_message < len(messages) - 1:
-                current_message += 1
+            if not fade_out:
+                if current_message < len(messages) - 1:
+                    current_message += 1
+                    if current_message == len(messages) - 1:
+                        fade_out = True
+                        fade_alpha = 0
 
-    # Pick background
-    background = bg1 if current_message < 8 else bg2
+    # Background logic: only bg1 for messages <= 7, bg2 for 8 and above
+    if current_message <= 7:
+        background = bg1
+    else:
+        background = bg2
+
     screen.blit(background, (0, 0))
 
     # Draw textbox
@@ -92,8 +111,31 @@ while running:
         text_surface = font.render(line, True, BLACK)
         screen.blit(text_surface, (textbox_rect.x + 10, textbox_rect.y + 10 + i * 30))
 
+    # Fade in
+    if fade_in:
+        fade_surface = pygame.Surface((WIDTH, HEIGHT))
+        fade_surface.fill((0, 0, 0))
+        fade_surface.set_alpha(fade_alpha)
+        screen.blit(fade_surface, (0, 0))
+        fade_alpha -= fade_speed
+        if fade_alpha <= 0:
+            fade_in = False
+            fade_alpha = 0
+
+    # Fade out
+    if fade_out and current_message == len(messages) - 1:
+        fade_surface = pygame.Surface((WIDTH, HEIGHT))
+        fade_surface.fill((0, 0, 0))
+        fade_surface.set_alpha(fade_alpha)
+        screen.blit(fade_surface, (0, 0))
+        if fade_alpha < 255:
+            fade_alpha += fade_speed
+        else:
+            pygame.mixer.music.stop()
+            running = False
+
     pygame.display.flip()
-    pygame.time.Clock().tick(60)
+    clock.tick(60)
 
 pygame.quit()
 sys.exit()

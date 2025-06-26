@@ -10,6 +10,7 @@ screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Part Three Test Game")
 clock = pygame.time.Clock()
 
+
 # Colors
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
@@ -41,6 +42,7 @@ class Kyle(pygame.sprite.Sprite):
             self.rect.y -= self.speed
         if keys[pygame.K_s]:
             self.rect.y += self.speed
+
         # Clamp Kyle inside the pop-up area (edges are hitboxes)
         if self.rect.left < area_rect.left:
             self.rect.left = area_rect.left
