@@ -4,6 +4,9 @@ import sys
 # Initialize Pygame
 pygame.init()
 
+# Initialize mixer for music
+pygame.mixer.init()
+
 # Screen setup
 WIDTH, HEIGHT = 800, 600
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
@@ -17,10 +20,19 @@ BLUE = (0, 100, 255)
 GRAY = (180, 180, 180)
 
 # Game states
+<<<<<<< HEAD
+TITLE, AREA1, AREA2, CUTSCENE = "title", "area1", "area2", "cutscene"
+game_state = TITLE
+
+=======
 AREA1, AREA2, CUTSCENE = "area1", "area2", "cutscene"
 game_state = AREA1
 area1 = pygame.transform.scale(pygame.image.load("Road to the house.png"), (WIDTH, HEIGHT))
 area2 = pygame.transform.scale(pygame.image.load("GH new.png"), (WIDTH, HEIGHT))
+<<<<<<< Updated upstream
+=======
+>>>>>>> 4a1087656a71021f4bc288784e96f3c13a4788cf
+>>>>>>> Stashed changes
 # Kyle sprite
 class Kyle(pygame.sprite.Sprite):
     def __init__(self, x, y):
@@ -76,6 +88,7 @@ def draw_enter_house_button():
 running = True
 show_cutscene_button = False
 enter_house_btn_rect = pygame.Rect(0, 0, 0, 0)  # Always define the button rect
+music_playing = False
 while running:
     pygame.display.update()
     keys = pygame.key.get_pressed()
@@ -85,6 +98,33 @@ while running:
         elif event.type == pygame.MOUSEBUTTONDOWN and show_cutscene_button and game_state == AREA2:
             if enter_house_btn_rect.collidepoint(event.pos):
                 game_state = CUTSCENE
+        # If on title screen, pressing any key or mouse click starts the game
+        if game_state == TITLE and (event.type == pygame.KEYDOWN or event.type == pygame.MOUSEBUTTONDOWN):
+            game_state = AREA1
+            if music_playing:
+                pygame.mixer.music.stop()
+                music_playing = False
+
+    if game_state == TITLE:
+        if not music_playing:
+            pygame.mixer.music.load('Renai Circulation恋愛サーキュレーション歌ってみたなみりん.mp3')
+            pygame.mixer.music.play(-1)
+            music_playing = True
+        # Draw your title screen here
+        screen.fill((255, 255, 255))
+        font = pygame.font.SysFont(None, 60)
+        title_text = font.render("Part Two Test Game", True, (0, 0, 0))
+        screen.blit(title_text, (WIDTH//2 - title_text.get_width()//2, HEIGHT//2 - 60))
+        font_small = pygame.font.SysFont(None, 30)
+        prompt_text = font_small.render("Press any key to start", True, (0, 0, 0))
+        screen.blit(prompt_text, (WIDTH//2 - prompt_text.get_width()//2, HEIGHT//2 + 20))
+        pygame.display.flip()
+        clock.tick(60)
+        continue
+    else:
+        if music_playing:
+            pygame.mixer.music.stop()
+            music_playing = False
 
     if game_state == AREA1:
         kyle.move(keys)

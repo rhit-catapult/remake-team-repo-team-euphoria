@@ -51,7 +51,7 @@ class Kyle(pygame.sprite.Sprite):
         if self.rect.bottom > area_rect.bottom:
             self.rect.bottom = area_rect.bottom
 
-# Claudia sprite (3.png)
+# w sprite (3.png)
 class Claudia(pygame.sprite.Sprite):
     def __init__(self, x, y):
         super().__init__()
