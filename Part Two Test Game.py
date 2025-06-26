@@ -175,7 +175,7 @@ while running:
     if game_state == CUTSCENE:
         screen.fill((220, 220, 220))
         # TODO: Place your cutscene logic here
-        text = font.render("Cutscene goes here!", True, BLACK)
+        text = font.render("You have entered her house", True, BLACK)
         screen.blit(text, (WIDTH//2 - text.get_width()//2, HEIGHT//2))
     # Draw Kyle
     if game_state != CUTSCENE:
