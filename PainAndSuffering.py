@@ -10,8 +10,8 @@ pygame.display.set_caption("Dating Sim Adventure")
 clock = pygame.time.Clock()
 
 # Game states
-TITLE, CENTER, LEFT, RIGHT, HOUSE, CUTSCENE, SECOND_TITLE, STREET1, STREET2 = (
-    "title", "center", "left", "right", "house", "cutscene", "second_title", "street1", "street2"
+TITLE, CENTER, LEFT, RIGHT, HOUSE, CUTSCENE, SECOND_TITLE, STREET1, STREET2,AREA1, AREA2, CUTSCENE = (
+    "title", "center", "left", "right", "house", "cutscene", "second_title", "street1", "street2","area1", "area2","cutscene"
 )
 game_state = TITLE
 
@@ -30,7 +30,9 @@ bg_left = pygame.transform.scale(pygame.image.load("left field.png"), (WIDTH, HE
 #bg_right = pygame.transform.scale(pygame.image.load("bg_right.png"), (WIDTH, HEIGHT))
 bg_street1 = pygame.transform.scale(pygame.image.load("Road to the house.png"), (WIDTH, HEIGHT))
 bg_street2 = pygame.transform.scale(pygame.image.load("Road to the house.png"), (WIDTH, HEIGHT))
-#bg_second_title = pygame.transform.scale(pygame.image.load("bg_second_title.png"), (WIDTH, HEIGHT))
+#bg_second_title = pygame.transform.scale(pygame.image.load("bg_second_title.png"), (WIDTH, HEIGHT))game_state = AREA1
+area1 = pygame.transform.scale(pygame.image.load("Road to the house.png"), (WIDTH, HEIGHT))
+area2 = pygame.transform.scale(pygame.image.load("GH new.png"), (WIDTH, HEIGHT))
 
 # Kyle
 class Kyle(pygame.sprite.Sprite):
