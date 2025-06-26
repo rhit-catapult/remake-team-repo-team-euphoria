@@ -61,8 +61,23 @@ countdown_start_time = pygame.time.get_ticks()
 countdown_duration = 3000  # 3 seconds
 
 # Game loop
+
 while True:
-    screen.fill(BG_COLOR)
+    background = pygame.image.load("cobble stone.png").convert()
+    background = pygame.transform.scale(background, (WIDTH, HEIGHT))
+    screen.blit(background, (0, 0))
+
+    girlfriend = pygame.image.load("3.png").convert_alpha()
+    girlfriend = pygame.transform.scale(girlfriend, (alien_size, alien_size))
+
+    player_bullet_img = pygame.image.load("projectile 1.png").convert_alpha()
+    player_bullet_img = pygame.transform.scale(player_bullet_img, (150, 100))
+
+    alien_bullet_img = pygame.image.load("projectile 1.png").convert_alpha()
+    alien_bullet_img = pygame.transform.scale(alien_bullet_img, (150, 100))
+
+    player_img = pygame.image.load("kyle (2).png").convert_alpha()
+    player_img = pygame.transform.scale(player_img, (75, 75))
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -71,13 +86,13 @@ while True:
 
     # Controls
     keys = pygame.key.get_pressed()
-    if keys[pygame.K_LEFT] and player.left > 0:
+    if keys[pygame.K_a] and player.left > 0:
         player.x -= player_speed
-    if keys[pygame.K_RIGHT] and player.right < WIDTH:
+    if keys[pygame.K_d] and player.right < WIDTH:
         player.x += player_speed
-    if keys[pygame.K_UP] and player.top > 0:
+    if keys[pygame.K_w] and player.top > 0:
         player.y -= player_speed
-    if keys[pygame.K_DOWN] and player.bottom < HEIGHT:
+    if keys[pygame.K_s] and player.bottom < HEIGHT:
         player.y += player_speed
 
     current_time = pygame.time.get_ticks()
@@ -191,12 +206,12 @@ while True:
                 ALIEN_FIRE_INTERVAL = 13
 
         # === Draw ===
-        pygame.draw.rect(screen, RED, alien)
+        screen.blit(girlfriend, alien.topleft)
         for bullet in alien_bullets:
-            pygame.draw.rect(screen, GREEN, bullet["rect"])
+            screen.blit(alien_bullet_img, bullet["rect"].topleft)
         for bullet in player_bullets:
-            pygame.draw.rect(screen, CYAN, bullet)
-        pygame.draw.rect(screen, WHITE, player)
+            screen.blit(player_bullet_img, bullet.topleft)
+        screen.blit(player_img, player.topleft)
 
         # UI
         health_text = font.render(f"Health: {player_health}", True, WHITE)
@@ -213,6 +228,8 @@ while True:
         msg = "You Survived and Won!" if player_won else "You were Defeated!"
         msg_surface = font.render(msg, True, WHITE)
         screen.blit(msg_surface, (WIDTH // 2 - msg_surface.get_width() // 2, HEIGHT // 2))
+
+
 
     pygame.display.flip()
     clock.tick(FPS)
