@@ -71,6 +71,14 @@ def draw_talk_button():
     screen.blit(text_surf, text_rect)
     return btn_rect
 
+#Backgrounds (load and scale them)
+bg_center = pygame.transform.scale(pygame.image.load("kyle_house.png"), (WIDTH, HEIGHT))
+bg_house = pygame.transform.scale(pygame.image.load("KH_new.png"), (WIDTH, HEIGHT))
+bg_left = pygame.transform.scale(pygame.image.load("left field.png"), (WIDTH, HEIGHT))
+bg_right = pygame.transform.scale(pygame.image.load("cobble stone.png"), (WIDTH, HEIGHT))
+bg_street1 = pygame.transform.scale(pygame.image.load("Road to the house.png"), (WIDTH, HEIGHT))
+bg_street2 = pygame.transform.scale(pygame.image.load("Road to the house.png"), (WIDTH, HEIGHT))
+
 # Backgrounds for cutscene
 bg1 = pygame.transform.scale(pygame.image.load("cobble stone.png"), (WIDTH, HEIGHT))  # Messages 1–7
 bg2 = pygame.transform.scale(pygame.image.load("GH_inside.png"), (WIDTH, HEIGHT))  # Messages 8+
