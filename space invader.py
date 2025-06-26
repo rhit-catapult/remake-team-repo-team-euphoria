@@ -4,6 +4,7 @@ import random
 import math
 
 pygame.init()
+pygame.mixer.init()
 
 WIDTH, HEIGHT = 800, 600
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
@@ -21,11 +22,24 @@ BLACK = (0, 0, 0)
 # Fonts
 font = pygame.font.SysFont(None, 28)
 
+# Load victory background and audio
+win_bg = pygame.image.load("th good ending.jpg").convert()  # <-- Replace with your background image
+win_bg = pygame.transform.scale(win_bg, (WIDTH, HEIGHT))
+win_music = pygame.mixer.Sound("your_win_music.wav")  # <-- Replace with your victory music
+
+# Game state
+game_over = False
+player_won = False
+show_win_scene = False
+win_alpha = 0
+win_fade_start = 0
+win_music_played = False
+
 # Player setup
 player_width, player_height = 60, 15
 player = pygame.Rect(WIDTH // 2 - player_width // 2, HEIGHT - 60, player_width, player_height)
 player_speed = 6
-player_health = 5
+player_health = 100
 player_bullets = []
 player_bullet_speed = -8
 can_shoot = False
@@ -48,11 +62,7 @@ stage = 1
 survival_time = 30
 start_ticks = None
 
-# Game state
-game_over = False
-player_won = False
-
-# Fade-in and dialogue
+# Dialogue and fade-in
 fade_in = True
 fade_alpha = 255
 dialog_after_fade = False
@@ -63,9 +73,9 @@ intro_dialog = [
     "Claudia: I guess I didn’t put enough drugs in that drink.",
     "Kyle: WHAT?! YOU DRUGGED ME?!",
     "Kyle: WHY WOULD YOU DO THIS?!",
-    "Claudia: Well, look at yourself, you are lonely and no one will remember you.",
-    "Claudia: Besides that, since you stay inside all the time, your skin has been protected from the sun, and it is in perfect condition to be harvested and added to my collection.",
-    "Claudia: Well, any who, enough talking, time to die.",
+    "Claudia: You’re lonely and no one will remember you.",
+    "Claudia: Your skin is perfect and I need it for my collection.",
+    "Claudia: Enough talking, time to die.",
     "Kyle: AHHHH! GET AWAY!"
 ]
 transition_dialog = [
@@ -76,7 +86,7 @@ show_transition_dialog = False
 transition_index = 0
 ok_button = pygame.Rect(WIDTH // 2 + 200, HEIGHT - 100, 100, 40)
 
-# Helper to draw text with wrapping
+# Text box drawing
 def draw_text(surface, text, rect, font, color):
     words = text.split(' ')
     line = ''
@@ -92,7 +102,7 @@ def draw_text(surface, text, rect, font, color):
     for i, l in enumerate(lines):
         surface.blit(font.render(l, True, color), (rect.x + 10, rect.y + 10 + i * 30))
 
-# Main game loop
+# Game loop
 while True:
     background = pygame.image.load("cobble stone.png").convert()
     background = pygame.transform.scale(background, (WIDTH, HEIGHT))
@@ -100,15 +110,12 @@ while True:
 
     girlfriend = pygame.image.load("3.png").convert_alpha()
     girlfriend = pygame.transform.scale(girlfriend, (alien_size, alien_size))
-
-    player_bullet_img = pygame.image.load("projectile 1.png").convert_alpha()
-    player_bullet_img = pygame.transform.scale(player_bullet_img, (150, 100))
-
-    alien_bullet_img = pygame.image.load("projectile 1.png").convert_alpha()
-    alien_bullet_img = pygame.transform.scale(alien_bullet_img, (150, 100))
-
     player_img = pygame.image.load("kyle (2).png").convert_alpha()
     player_img = pygame.transform.scale(player_img, (75, 75))
+    player_bullet_img = pygame.image.load("projectile 1.png").convert_alpha()
+    player_bullet_img = pygame.transform.scale(player_bullet_img, (150, 100))
+    alien_bullet_img = pygame.image.load("projectile 1.png").convert_alpha()
+    alien_bullet_img = pygame.transform.scale(alien_bullet_img, (150, 100))
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -139,12 +146,11 @@ while True:
         player.x += player_speed
     if keys[pygame.K_w] and player.top > 0:
         player.y -= player_speed
-    if keys[pygame.K_s] and player.bottom < HEIGHT:
-        player.y += player_speed
+    if keys[pygame.K_s] and player.bottom < HEIGHT - player_height:
+        player.y += player_speed  # ✅ now limited to stay inside screen
 
     current_time = pygame.time.get_ticks()
 
-    # === Fade In ===
     if fade_in:
         fade_surface = pygame.Surface((WIDTH, HEIGHT))
         fade_surface.fill((0, 0, 0))
@@ -156,13 +162,11 @@ while True:
             fade_in = False
             dialog_after_fade = True
 
-    # === Dialogue After Fade ===
     elif dialog_after_fade:
         box_rect = pygame.Rect(50, HEIGHT - 150, WIDTH - 100, 100)
         pygame.draw.rect(screen, WHITE, box_rect)
         pygame.draw.rect(screen, BLACK, box_rect, 4)
         draw_text(screen, intro_dialog[dialog_index], box_rect, font, BLACK)
-
         pygame.draw.rect(screen, GREEN, ok_button)
         pygame.draw.rect(screen, BLACK, ok_button, 2)
         screen.blit(font.render("OK", True, BLACK), (ok_button.centerx - 20, ok_button.centery - 12))
@@ -172,13 +176,12 @@ while True:
         pygame.draw.rect(screen, WHITE, box_rect)
         pygame.draw.rect(screen, BLACK, box_rect, 4)
         draw_text(screen, transition_dialog[transition_index], box_rect, font, BLACK)
-
         pygame.draw.rect(screen, GREEN, ok_button)
         pygame.draw.rect(screen, BLACK, ok_button, 2)
         screen.blit(font.render("OK", True, BLACK), (ok_button.centerx - 20, ok_button.centery - 12))
 
     elif not game_over:
-        # === Stage 1 movement ===
+        # Alien movement
         if stage == 1:
             dx = player.centerx - alien.centerx
             dy = player.centery - alien.centery
@@ -186,8 +189,6 @@ while True:
             if dist != 0:
                 alien.x += int((dx / dist) * alien_speed)
                 alien.y += int((dy / dist) * alien_speed)
-
-        # === Stage 2 movement (bounce) ===
         elif stage == 2:
             alien.x += alien_vx
             alien.y += alien_vy
@@ -196,7 +197,6 @@ while True:
             if alien.top <= 0 or alien.bottom >= HEIGHT:
                 alien_vy *= -1
 
-        # === Alien firing ===
         alien_fire_timer += 1
         if alien_fire_timer >= ALIEN_FIRE_INTERVAL:
             alien_fire_timer = 0
@@ -209,7 +209,6 @@ while True:
                 bullet = pygame.Rect(alien.centerx, alien.centery, 24, 24)
                 alien_bullets.append({"rect": bullet, "vel": (vel_x, vel_y)})
 
-        # === Move bullets ===
         for bullet in alien_bullets[:]:
             bullet["rect"].x += bullet["vel"][0]
             bullet["rect"].y += bullet["vel"][1]
@@ -232,27 +231,25 @@ while True:
                 if alien_health <= 0:
                     game_over = True
                     player_won = True
+                    show_win_scene = True
+                    win_fade_start = pygame.time.get_ticks()
 
-        # === Player Shooting ===
         if stage == 2 and keys[pygame.K_SPACE] and current_time - last_shot_time > SHOT_COOLDOWN:
             bullet = pygame.Rect(player.centerx - 4, player.top - 10, 8, 20)
             player_bullets.append(bullet)
             last_shot_time = current_time
 
-        # === Stage 1 survival timer ===
         if stage == 1 and start_ticks:
             seconds = (pygame.time.get_ticks() - start_ticks) / 1000
             if seconds >= survival_time:
                 show_transition_dialog = True
 
-        # === Draw Everything ===
         screen.blit(girlfriend, alien.topleft)
         for bullet in alien_bullets:
             screen.blit(alien_bullet_img, bullet["rect"].topleft)
         for bullet in player_bullets:
             screen.blit(player_bullet_img, bullet.topleft)
         screen.blit(player_img, player.topleft)
-
         screen.blit(font.render(f"Health: {player_health}", True, WHITE), (10, 10))
         if stage == 1 and start_ticks:
             time_left = max(0, int(survival_time - (pygame.time.get_ticks() - start_ticks) / 1000))
@@ -260,9 +257,16 @@ while True:
         elif stage == 2:
             screen.blit(font.render(f"Alien HP: {alien_health}", True, WHITE), (10, 40))
 
-    elif game_over:
-        msg = "You Survived and Won!" if player_won else "You were Defeated!"
-        screen.blit(font.render(msg, True, WHITE), (WIDTH // 2 - 100, HEIGHT // 2))
+    elif show_win_scene:
+        if not win_music_played:
+            win_music.play()
+            win_music_played = True
+
+        if win_alpha < 255:
+            win_alpha = min(255, (pygame.time.get_ticks() - win_fade_start) / 10000 * 255)
+        fade_surface = win_bg.copy()
+        fade_surface.set_alpha(int(win_alpha))
+        screen.blit(fade_surface, (0, 0))
 
     pygame.display.flip()
     clock.tick(FPS)
