@@ -57,7 +57,6 @@ border_top_2 = pygame.Rect(0, 300, WIDTH, 10)
 door_width, door_height = 60, 10
 door_x = WIDTH // 2 - door_width // 2
 door_y = 300 - door_height - 2  # Place the door just above the border
-
 door_hitbox = pygame.Rect(door_x, door_y, door_width, door_height)
 
 # Button for cutscene
@@ -122,15 +121,8 @@ while running:
     elif game_state == CUTSCENE:
         screen.fill((220, 220, 220))
     if game_state == AREA1:
-        # Draw Area 1 borders
-        pygame.draw.rect(screen, BLACK, border_top_1)
-        pygame.draw.rect(screen, BLACK, border_left_1)
-        pygame.draw.rect(screen, BLACK, border_bottom_1)
+        pass  # No borders or extra drawing in AREA1
     elif game_state == AREA2:
-        # Draw Area 2 borders
-        pygame.draw.rect(screen, BLACK, border_right_2)
-        pygame.draw.rect(screen, BLACK, border_bottom_2)
-        pygame.draw.rect(screen, BLACK, border_top_2)
         # Draw door
         pygame.draw.rect(screen, (200, 100, 0), door_hitbox)
         # Show 'Enter the house' button if Kyle is within 10px of the door

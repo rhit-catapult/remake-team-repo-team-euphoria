@@ -20,6 +20,13 @@ GRAY = (180, 180, 180)
 BLUE = (0, 0, 255)
 DARK_GRAY = (80, 80, 80)
 
+# Background images
+bg_title = pygame.transform.scale(pygame.image.load("Title Screen 1.png"), (WIDTH, HEIGHT))
+bg_center = pygame.transform.scale(pygame.image.load("kyle_house.png"), (WIDTH, HEIGHT))
+bg_house = pygame.transform.scale(pygame.image.load("KH_new.png"), (WIDTH, HEIGHT))
+bg_left = pygame.transform.scale(pygame.image.load("left field.png"), (WIDTH, HEIGHT))
+bg_right = pygame.transform.scale(pygame.image.load("cobble stone.png"), (WIDTH, HEIGHT))
+
 # Kyle
 class Kyle(pygame.sprite.Sprite):
     def __init__(self, x, y):
@@ -188,6 +195,7 @@ while running:
             running = False
         elif event.type == pygame.MOUSEBUTTONDOWN:
             pos = event.pos
+
             if game_state == TITLE and start_button.is_clicked(pos): start_button.action()
             elif game_state == CENTER and kyle.rect.colliderect(house_door.inflate(10, 10)):
                 if enter_house_button.is_clicked(pos): enter_house_button.action()
@@ -210,53 +218,47 @@ while running:
     if game_state != TITLE:
         kyle.move(keys)
 
-    screen.fill(WHITE)
-
+    # Draw backgrounds for each scene
     if game_state == TITLE:
+        screen.blit(bg_title, (0, 0))
         start_button.draw(screen)
-
     elif game_state == CENTER:
+        screen.blit(bg_center, (0, 0))
         pygame.draw.rect(screen, DARK_GRAY, house_area, 2)
         pygame.draw.rect(screen, BLUE, house_door)
-
-        # Draw car hitbox in bottom-right
         pygame.draw.rect(screen, BLACK, car_box, 2)
-
         handle_wall_collisions()
         handle_house_collisions()
-
         if kyle.rect.colliderect(house_door.inflate(10, 10)):
             enter_house_button.draw(screen)
         elif kyle.rect.colliderect(car_box.inflate(10, 10)):
             drive_button.draw(screen)
-
         pygame.draw.rect(screen, BLACK, wall_left)
         pygame.draw.rect(screen, BLACK, wall_right)
         pygame.draw.rect(screen, BLACK, wall_top)
         pygame.draw.rect(screen, BLACK, wall_bottom)
-
     elif game_state == HOUSE:
+        screen.blit(bg_house, (0, 0))
         pygame.draw.rect(screen, BLUE, house_exit)
         handle_wall_collisions()
         if kyle.rect.colliderect(house_exit.inflate(10, 10)):
             leave_house_button.draw(screen)
-
-    elif game_state == LEFT or game_state == RIGHT:
+    elif game_state == LEFT:
+        screen.blit(bg_left, (0, 0))
         handle_wall_collisions()
-        if game_state == LEFT:
-            pygame.draw.rect(screen, BLACK, wall_left)
-        else:
-            pygame.draw.rect(screen, BLACK, wall_right)
-
+        pygame.draw.rect(screen, BLACK, wall_left)
+    elif game_state == RIGHT:
+        screen.blit(bg_right, (0, 0))
+        handle_wall_collisions()
+        pygame.draw.rect(screen, BLACK, wall_right)
     elif game_state == CUTSCENE:
         screen.fill(WHITE)
         font = pygame.font.SysFont(None, 40)
         text = font.render("Driving to next part...", True, BLACK)
         screen.blit(text, (WIDTH // 2 - text.get_width() // 2, HEIGHT // 2))
-        # Draw the Next button
         show_next_button = True
         next_btn_rect = draw_next_button()
-
+    # Draw Kyle sprite
     screen.blit(kyle.image, kyle.rect)
     pygame.display.flip()
     clock.tick(60)
