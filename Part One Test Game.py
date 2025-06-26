@@ -163,9 +163,23 @@ class Player(pygame.sprite.Sprite):
         if keys[pygame.K_DOWN]:
             self.rect.y += self.speed
 
+# Add a Next button for the cutscene
+def draw_next_button():
+    btn_width, btn_height = 120, 40
+    btn_rect = pygame.Rect(WIDTH//2 - btn_width//2, HEIGHT//2 + 60, btn_width, btn_height)
+    pygame.draw.rect(screen, GRAY, btn_rect)
+    pygame.draw.rect(screen, BLACK, btn_rect, 2)
+    font = pygame.font.SysFont(None, 30)
+    text_surf = font.render("Next", True, BLACK)
+    text_rect = text_surf.get_rect(center=btn_rect.center)
+    screen.blit(text_surf, text_rect)
+    return btn_rect
+
 # Main loop
 running = True
 level = 0
+next_btn_rect = pygame.Rect(0, 0, 0, 0)
+show_next_button = False
 while running:
     keys = pygame.key.get_pressed()
 
@@ -181,7 +195,17 @@ while running:
                 if leave_house_button.is_clicked(pos): leave_house_button.action()
             elif game_state == CENTER and kyle.rect.colliderect(car_box.inflate(10, 10)):
                 if drive_button.is_clicked(pos):
-                    pass  # Do nothing when Drive is clicked
+                    game_state = CUTSCENE
+            elif game_state == CUTSCENE and show_next_button:
+                if next_btn_rect.collidepoint(pos):
+                    # Transition to next cutscene or display a message
+                    screen.fill(WHITE)
+                    font = pygame.font.SysFont(None, 40)
+                    text = font.render("Next part coming soon!", True, BLACK)
+                    screen.blit(text, (WIDTH // 2 - text.get_width() // 2, HEIGHT // 2))
+                    pygame.display.flip()
+                    pygame.time.wait(1500)
+                    running = False
 
     if game_state != TITLE:
         kyle.move(keys)
@@ -223,6 +247,15 @@ while running:
             pygame.draw.rect(screen, BLACK, wall_left)
         else:
             pygame.draw.rect(screen, BLACK, wall_right)
+
+    elif game_state == CUTSCENE:
+        screen.fill(WHITE)
+        font = pygame.font.SysFont(None, 40)
+        text = font.render("Driving to next part...", True, BLACK)
+        screen.blit(text, (WIDTH // 2 - text.get_width() // 2, HEIGHT // 2))
+        # Draw the Next button
+        show_next_button = True
+        next_btn_rect = draw_next_button()
 
     screen.blit(kyle.image, kyle.rect)
     pygame.display.flip()
