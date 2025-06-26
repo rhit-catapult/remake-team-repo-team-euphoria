@@ -13,7 +13,7 @@ pygame.display.set_caption("Dating Sim Adventure")
 clock = pygame.time.Clock()
 
 # Game states
-TITLE, CENTER, LEFT, RIGHT, HOUSE, CUTSCENE = "title", "center", "left", "right", "house", "cutscene"
+TITLE, CENTER, LEFT, RIGHT, HOUSE, CUTSCENE, PART2, AREA2, CUTSCENE2 = "title", "center", "left", "right", "house", "cutscene", "part2", "area2", "cutscene2"
 game_state = TITLE
 
 # Colors
@@ -29,6 +29,10 @@ bg_center = pygame.transform.scale(pygame.image.load("kyle_house.png"), (WIDTH, 
 bg_house = pygame.transform.scale(pygame.image.load("KH_new.png"), (WIDTH, HEIGHT))
 bg_left = pygame.transform.scale(pygame.image.load("left field.png"), (WIDTH, HEIGHT))
 bg_right = pygame.transform.scale(pygame.image.load("cobble stone.png"), (WIDTH, HEIGHT))
+
+# PART 2 assets
+area1_bg = pygame.transform.scale(pygame.image.load("Road to the house.png"), (WIDTH, HEIGHT))
+area2_bg = pygame.transform.scale(pygame.image.load("GH new.png"), (WIDTH, HEIGHT))
 
 # Kyle
 class Kyle(pygame.sprite.Sprite):
@@ -111,6 +115,18 @@ drive_button = Button("Drive", (WIDTH//2 - 60, HEIGHT - 40, 120, 30), lambda: No
 
 music_playing = False
 
+# PART 2 hitboxes
+border_top_1 = pygame.Rect(0, 0, WIDTH, 10)
+border_left_1 = pygame.Rect(0, 0, 10, HEIGHT)
+border_bottom_1 = pygame.Rect(0, HEIGHT - 10, WIDTH, 10)
+border_right_2 = pygame.Rect(WIDTH - 10, 0, 10, HEIGHT)
+border_bottom_2 = pygame.Rect(0, HEIGHT - 10, WIDTH, 10)
+border_top_2 = pygame.Rect(0, 320, WIDTH, 10)
+door_width, door_height = 60, 10
+door_x = WIDTH // 2 - door_width // 2
+door_y = 320 - door_height - 2
+door_hitbox = pygame.Rect(door_x, door_y, door_width, door_height)
+
 # Scene transition
 def change_scene(scene):
     global game_state
@@ -154,26 +170,6 @@ def handle_house_collisions():
                 if not kyle.rect.colliderect(house_door.inflate(10, 10)):
                     kyle.rect.bottom = wall.top
 
-# Sprite class
-class Player(pygame.sprite.Sprite):
-    def __init__(self, x, y):
-        super().__init__()
-        self.image = pygame.Surface((50, 50))  # Sprite size
-        self.image.fill(BLUE)                  # Sprite color
-        self.rect = self.image.get_rect()
-        self.rect.topleft = (x, y)
-        self.speed = 5
-
-    def update(self, keys):
-        if keys[pygame.K_LEFT]:
-            self.rect.x -= self.speed
-        if keys[pygame.K_RIGHT]:
-            self.rect.x += self.speed
-        if keys[pygame.K_UP]:
-            self.rect.y -= self.speed
-        if keys[pygame.K_DOWN]:
-            self.rect.y += self.speed
-
 # Add a Next button for the cutscene
 def draw_next_button():
     btn_width, btn_height = 120, 40
@@ -186,11 +182,24 @@ def draw_next_button():
     screen.blit(text_surf, text_rect)
     return btn_rect
 
+# PART 2 logic
+def draw_enter_house_button():
+    btn_width, btn_height = 220, 60
+    btn_rect = pygame.Rect(WIDTH//2 - btn_width//2, HEIGHT - 80, btn_width, btn_height)
+    pygame.draw.rect(screen, GRAY, btn_rect)
+    pygame.draw.rect(screen, BLACK, btn_rect, 3)
+    text_surf = font.render("Enter the house", True, BLACK)
+    text_rect = text_surf.get_rect(center=btn_rect.center)
+    screen.blit(text_surf, text_rect)
+    return btn_rect
+
 # Main loop
 running = True
 level = 0
 next_btn_rect = pygame.Rect(0, 0, 0, 0)
 show_next_button = False
+show_cutscene_button = False
+enter_house_btn_rect = pygame.Rect(0, 0, 0, 0)
 while running:
     keys = pygame.key.get_pressed()
 
@@ -214,16 +223,14 @@ while running:
                     game_state = CUTSCENE
             elif game_state == CUTSCENE and show_next_button:
                 if next_btn_rect.collidepoint(pos):
-                    # Transition to next cutscene or display a message
-                    screen.fill(WHITE)
-                    font = pygame.font.SysFont(None, 40)
-                    text = font.render("Next part coming soon!", True, BLACK)
-                    screen.blit(text, (WIDTH // 2 - text.get_width() // 2, HEIGHT // 2))
-                    pygame.display.flip()
-                    pygame.time.wait(1500)
-                    running = False
+                    # Transition to PART2 after cutscene
+                    game_state = PART2
+                    # Place Kyle at the start of PART2
+                    kyle.rect.center = (80, HEIGHT - 80)
+            elif game_state == PART2 and show_cutscene_button and enter_house_btn_rect.collidepoint(pos):
+                game_state = CUTSCENE2
 
-    if game_state != TITLE:
+    if game_state != TITLE and game_state != CUTSCENE and game_state != CUTSCENE2:
         kyle.move(keys)
 
     # Draw backgrounds for each scene
@@ -263,13 +270,54 @@ while running:
         screen.blit(text, (WIDTH // 2 - text.get_width() // 2, HEIGHT // 2))
         show_next_button = True
         next_btn_rect = draw_next_button()
+    elif game_state == PART2:
+        screen.blit(area1_bg, (0, 0))
+        # PART2 movement and border logic
+        if kyle.rect.left < border_left_1.right:
+            kyle.rect.left = border_left_1.right
+        if kyle.rect.top < border_top_1.bottom:
+            kyle.rect.top = border_top_1.bottom
+        if kyle.rect.bottom > border_bottom_1.top:
+            kyle.rect.bottom = border_bottom_1.top
+        # Transition to AREA2 (right edge)
+        if kyle.rect.right >= WIDTH:
+            game_state = AREA2
+            kyle.rect.left = 10
+        if game_state == PART2:
+            show_cutscene_button = False
+            enter_house_btn_rect = pygame.Rect(0, 0, 0, 0)
+    elif game_state == AREA2:
+        screen.blit(area2_bg, (0, 0))
+        # PART2 movement and border logic
+        if kyle.rect.right > border_right_2.left:
+            kyle.rect.right = border_right_2.left
+        if kyle.rect.bottom > border_bottom_2.top:
+            kyle.rect.bottom = border_bottom_2.top
+        if kyle.rect.top < border_top_2.bottom:
+            if not kyle.rect.colliderect(door_hitbox.inflate(10, 10)):
+                kyle.rect.top = border_top_2.bottom
+        # Transition back to PART2 (left edge)
+        if kyle.rect.left < 0:
+            game_state = PART2
+            kyle.rect.right = WIDTH - 10
+        # Draw door
+        pygame.draw.rect(screen, (200, 100, 0), door_hitbox)
+        # Show 'Enter the house' button if Kyle is within 30px of the door
+        if kyle.rect.colliderect(door_hitbox.inflate(30, 30)):
+            show_cutscene_button = True
+            enter_house_btn_rect = draw_enter_house_button()
+        else:
+            show_cutscene_button = False
+            enter_house_btn_rect = pygame.Rect(0, 0, 0, 0)
+    elif game_state == CUTSCENE2:
+        screen.fill((220, 220, 220))
+        text = font.render("Cutscene goes here!", True, BLACK)
+        screen.blit(text, (WIDTH//2 - text.get_width()//2, HEIGHT//2))
     # Draw Kyle sprite
-    screen.blit(kyle.image, kyle.rect)
+    if game_state != CUTSCENE and game_state != CUTSCENE2:
+        screen.blit(kyle.image, kyle.rect)
     pygame.display.flip()
     clock.tick(60)
 
-
-# Exit cleanly
-pygame.quit()
-sys.exit()
+#Part 3
 

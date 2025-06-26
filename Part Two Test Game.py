@@ -23,6 +23,11 @@ GRAY = (180, 180, 180)
 TITLE, AREA1, AREA2, CUTSCENE = "title", "area1", "area2", "cutscene"
 game_state = TITLE
 
+
+TITLE, AREA1, AREA2, CUTSCENE = "title", "area1", "area2", "cutscene"
+game_state = TITLE
+
+
 AREA1, AREA2, CUTSCENE = "area1", "area2", "cutscene"
 game_state = AREA1
 area1 = pygame.transform.scale(pygame.image.load("Road to the house.png"), (WIDTH, HEIGHT))
