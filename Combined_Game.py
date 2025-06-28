@@ -165,7 +165,7 @@ door_hitbox = pygame.Rect(door_x, door_y, door_width, door_height)
 player_width, player_height = 60, 15
 player = pygame.Rect(WIDTH // 2 - player_width // 2, HEIGHT - 60, player_width, player_height)
 player_speed = 6
-player_health = 5
+player_health = 6
 player_bullets = []
 player_bullet_speed = -8
 can_shoot = False
@@ -388,7 +388,7 @@ while running:
                     # Dialog finished, transition to Part 4
                     game_state = PART4_GAME
                     # Reset Part 4 variables
-                    player_health = 5
+                    player_health = 4
                     player_bullets = []
                     alien_bullets = []
                     alien_health = 0
@@ -548,7 +548,7 @@ while running:
                         countdown_active = True
                         countdown_start_time = pygame.time.get_ticks()
                         can_shoot = True
-                        alien_health = 20
+                        alien_health = 25
                         alien_vx = 4.5
                         alien_vy = 4.5
                         ALIEN_FIRE_INTERVAL = 13

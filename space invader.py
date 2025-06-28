@@ -23,13 +23,11 @@ BLACK = (0, 0, 0)
 font = pygame.font.SysFont(None, 28)
 
 # Load backgrounds and audio
-win_bg = pygame.image.load("th good ending.jpg").convert()
-win_bg = pygame.transform.scale(win_bg, (WIDTH, HEIGHT))
-#win_music = pygame.mixer.Sound("your_win_music.wav")
 
-#loss_bg = pygame.image.load("th bad ending.jpg").convert()
-#loss_bg = pygame.transform.scale(loss_bg, (WIDTH, HEIGHT))
-#loss_music = pygame.mixer.Sound("your_loss_music.wav")
+
+# Background music
+
+pygame.mixer.music.set_volume(0.5)
 
 # Game state
 game_over = False
@@ -42,7 +40,7 @@ end_music_played = False
 # Player setup
 player_width, player_height = 60, 15
 player = pygame.Rect(WIDTH // 2 - player_width // 2, HEIGHT - 60, player_width, player_height)
-player_speed = 20
+player_speed = 7.5
 player_health = 6
 player_bullets = []
 player_bullet_speed = -8
@@ -105,6 +103,7 @@ def draw_text(surface, text, rect, font, color):
     for i, l in enumerate(lines):
         surface.blit(font.render(l, True, color), (rect.x + 10, rect.y + 10 + i * 30))
 
+# MAIN GAME LOOP
 while True:
     background = pygame.image.load("cobble stone.png").convert()
     background = pygame.transform.scale(background, (WIDTH, HEIGHT))
@@ -164,6 +163,7 @@ while True:
             fade_in = False
             dialog_after_fade = True
 
+
     elif dialog_after_fade or show_transition_dialog:
         box_rect = pygame.Rect(50, HEIGHT - 150, WIDTH - 100, 100)
         pygame.draw.rect(screen, WHITE, box_rect)
@@ -189,7 +189,11 @@ while True:
             alien.y += alien_vy
             if alien.left <= 0 or alien.right >= WIDTH:
                 alien_vx *= -1
-            if alien.top <= 0 or alien.bottom >= HEIGHT:
+            if alien.top <= 0:
+                alien.top = 0
+                alien_vy *= -1
+            if alien.bottom >= HEIGHT - 100:  # Claudia stays above the ground
+                alien.bottom = HEIGHT - 100
                 alien_vy *= -1
 
         alien_fire_timer += 1
@@ -206,67 +210,3 @@ while True:
 
         for bullet in alien_bullets[:]:
             bullet["rect"].x += bullet["vel"][0]
-            bullet["rect"].y += bullet["vel"][1]
-            if not screen.get_rect().colliderect(bullet["rect"]):
-                alien_bullets.remove(bullet)
-            elif bullet["rect"].colliderect(player):
-                alien_bullets.remove(bullet)
-                player_health -= 1
-                if player_health <= 0:
-                    game_over = True
-                    player_won = False
-                    show_end_scene = True
-                    end_fade_start = pygame.time.get_ticks()
-
-        for bullet in player_bullets[:]:
-            bullet.y += player_bullet_speed
-            if bullet.bottom < 0:
-                player_bullets.remove(bullet)
-            elif bullet.colliderect(alien) and stage == 2:
-                alien_health -= 1
-                player_bullets.remove(bullet)
-                if alien_health <= 0:
-                    game_over = True
-                    player_won = True
-                    show_end_scene = True
-                    end_fade_start = pygame.time.get_ticks()
-
-        if stage == 2 and keys[pygame.K_SPACE] and current_time - last_shot_time > SHOT_COOLDOWN:
-            bullet = pygame.Rect(player.centerx - 4, player.top - 10, 8, 20)
-            player_bullets.append(bullet)
-            last_shot_time = current_time
-
-        if stage == 1 and start_ticks:
-            seconds = (pygame.time.get_ticks() - start_ticks) / 1000
-            if seconds >= survival_time:
-                show_transition_dialog = True
-
-        screen.blit(girlfriend, alien.topleft)
-        for bullet in alien_bullets:
-            screen.blit(alien_bullet_img, bullet["rect"].topleft)
-        for bullet in player_bullets:
-            screen.blit(player_bullet_img, bullet.topleft)
-        screen.blit(player_img, player.topleft)
-        screen.blit(font.render(f"Health: {player_health}", True, WHITE), (10, 10))
-        if stage == 1 and start_ticks:
-            time_left = max(0, int(survival_time - (pygame.time.get_ticks() - start_ticks) / 1000))
-            screen.blit(font.render(f"Survive: {time_left}s", True, WHITE), (10, 40))
-        elif stage == 2:
-            screen.blit(font.render(f"Alien HP: {alien_health}", True, WHITE), (10, 40))
-
-    elif show_end_scene:
-        if not end_music_played:
-            if player_won:
-                win_music.play()
-            else:
-                loss_music.play()
-            end_music_played = True
-
-        end_alpha = min(255, (pygame.time.get_ticks() - end_fade_start) / 10000 * 255)
-        end_bg = win_bg if player_won else loss_bg
-        fade_surface = end_bg.copy()
-        fade_surface.set_alpha(int(end_alpha))
-        screen.blit(fade_surface, (0, 0))
-
-    pygame.display.flip()
-    clock.tick(FPS)
